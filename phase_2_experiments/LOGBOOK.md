@@ -9,12 +9,13 @@
 
 ## SYSTEM OVERVIEW
 
-**Engine:** `engine.py` v2.0
+**Engine:** `engine.py` v2.1
 **Schema:** Blackboard v2.2
-**Notebooks:** `creative_prism_studio_v2_0.ipynb` (current) · earlier versions in `phase_2_experiments/phase_2_archive/`
+**Notebooks:** `creative_prism_studio_v2_1.ipynb` (current) · earlier versions in `phase_2_experiments/phase_2_archive/`
 **Role sequence:** Director → Creator → Critic → Researcher → Creator Pass 2 → Critic Pass 2 → Director
 **Traits system:** 52-trait matrix (`phase_2_experiments/persona_traits_matrix_v2.csv`) with five-band language directives
 **Models:** DIRECTOR_MODEL (Sonnet) for PIL-facing calls · SESSION_MODEL (Haiku) for Creative Team
+**Evaluator:** `prism_evaluator.py` v2.0 — dual evaluator (Gemini 1.5 Pro + GPT-4o), Tier 1 JSON metrics + Tier 2 LLM scoring
 
 ---
 
@@ -40,6 +41,11 @@
 | 52-trait matrix replaces 9-trait system (v2.0) | Values-based personality system with min/max ranges and five-band language |
 | Brief document max_chars (v2.0) | read_brief_doc() loads only most recent 12000 chars to prevent token accumulation |
 | All PIL interactions live input (v1.5.2+) | No simulated personas or hardcoded test responses in discovery/routing |
+| generate_baseline() (v2.1) | Zero-shot Control B call before any agents run — raw prompt → Haiku, no system prompt |
+| assemble_evaluation_payload() (v2.1) | Packages prompt/baseline/synthesis at session end for evaluator |
+| Stage 8c Second Loop (v2.1) | Re-runs full Creative Team when second_exploration.triggered is True |
+| Governed domain constraint recognition (v2.1) | Director names regulatory/legal hard boundaries in Brief regardless of PIL awareness |
+| Researcher governed domain priority (v2.1) | Compliance research is Category 1 in regulated domains — included automatically |
 
 ---
 
@@ -333,20 +339,182 @@ SVG source files: `phase_3_visualization/metaball_dev/eyedev/`
 
 ---
 
-## NEXT EXPERIMENT
+### [2026-04-06/07] Experiment 5 — Phase 1 v2.0 First Live Run with Traits Matrix
 
-**Target:** Experiment 5 — Phase 1 v2.0 First Run with Traits Matrix
-**Mode:** Live PIL input · **Director:** Sonnet · **Team:** Haiku
+**Status:** COMPLETE — first successful v2.0 live run; two bugs found and fixed
+**Engine:** v2.0 · **Notebook:** `creative_prism_studio_v2_0.ipynb`
+**Session:** `session_20260407_001244_0afc528c.json`
+**Director model:** claude-sonnet-4-20250514 · **Team model:** claude-haiku-4-5-20251001
+**PIL:** Peter (live input)
 
-**What to observe:**
-- Does the traits matrix produce meaningful trait profiles in the system prompt?
-- Does the Director's team configuration create observable differences in Creative Team output?
-- Does the five-band language system translate into behavioral differences?
-- Does the brief document max_chars prevent token accumulation?
-- Does the Director Review correctly read refined (Pass 2) directions?
-- Does the Researcher have enough tokens (2000) to complete all findings?
-- Is the Critic's neutral presentation language preserved through Stage 4e?
-- Does Stage 9 produce a context-appropriate document name?
+**Brief:** ADD/perfectionism — user arriving with pattern of abandoning meaningful
+projects mid-way. Director reframed as vision-reality gap, not a motivation problem.
+
+**What worked:**
+- Traits matrix produced distinct, readable role personalities in system prompts
+- Director team configuration applied meaningful adjustments for the problem type
+- Five-band language directives produced observable tone differences across roles
+- Researcher citations were precise and substantive: Barkley (temporal motivation
+  theory), Deci & Ryan (self-determination theory), Piers Steel (procrastination
+  meta-analysis), Hallowell & Ratey (satisficing as neurological relief for ADD brains)
+- Final synthesis — "The Perfectionist's Completion System" — was directly responsive
+  to the reframed problem and grounded in the research
+- evaluation_payload correctly assembled with baseline and synthesis for comparison
+
+**Bugs found and fixed during session:**
+
+1. **Creator Pass 2 truncated** — max_tokens=1200 insufficient for full two-pass
+   refinement. A3 direction cut off mid-sentence. Fix applied: raised to 2400.
+2. **Second loop not triggering** — `second_exploration.triggered` flag was being set
+   by Stage 8 correctly but no cell was reading it. Stage 8c cell was missing entirely.
+   Fix applied: JSON signal parser added to Cell 10; Cell 10c (Stage 8c) created to
+   re-run full Creator/Critic/Researcher loop when flag is True.
+
+**Observations:**
+- 52-trait matrix is working — role outputs feel calibrated, not generic
+- ADD/perfectionism demonstrates the system's range beyond business/brand problems
+- The reframing mechanism (vision-reality gap) drove the synthesis quality
+- Second loop gap was a significant architectural hole — now closed
+
+---
+
+### [2026-04-08] Session Comparison — Petrina's v1.5 vs v2.1
+
+**Status:** COMPLETE — comparative analysis, no new PIL session
+**Sessions compared:**
+- v1.5 original run (session `4ced178a`) — Haiku Director, pre-traits-matrix
+- v2.1 re-run (session `61034eec`) — Sonnet Director, traits matrix active
+
+**Key findings:**
+
+1. **Governed domain gap identified** — zero-shot Haiku baseline caught the commercial
+   kitchen licensing requirement (NY State food service regulations, commercial kitchen
+   partnership required before permit application, 45-90 day timeline) immediately.
+   The v2.1 Sonnet Director produced a richer, more aspirational brief but missed it.
+   The baseline outperformed the studio on this specific dimension despite lower overall
+   quality. This is a documented finding — the Prism will not always outperform on
+   every dimension. Report honestly in evaluation.
+
+2. **Synthesis quality improvement confirmed** — v2.1 Director produced materially
+   better synthesis: specific cost breakdowns, phased milestones (Year 1 vs Year 2),
+   budget risk thresholds, compliance-first launch sequence. v1.5 synthesis was
+   aspirational but thin on operational specifics.
+
+3. **PIL experience improvement confirmed** — Peter reported feeling more heard and
+   engaged in v2.1 session. Discovery was more targeted, reframing more precise.
+
+**Action taken:** director.md v1.3 and researcher.md v1.3 written to address the
+governed domain gap structurally. Director now required to name regulatory/legal
+hard boundaries in the Brief regardless of whether PIL mentioned them. Researcher
+now treats governed domain compliance research as Category 1 (automatic, not optional).
+
+---
+
+### [2026-04-08] Engine v2.1 Build — Baseline Generation, Evaluation Payload, Bug Fixes
+
+**Status:** COMPLETE — committed and pushed to `github.com/PeterComitini/creative_prism`
+**Engine:** v2.1 · **Notebook:** `creative_prism_studio_v2_1.ipynb`
+
+**What was added:**
+
+Engine v2.1:
+- `generate_baseline()` — zero-shot Control B call. Raw prompt → SESSION_MODEL, no
+  system prompt. Called once at session start, before any agents run.
+  Architecture is the isolated variable; same model capability throughout.
+- `assemble_evaluation_payload()` — packages `problem_prompt`, `baseline_response`,
+  and `final_synthesis` into `evaluation_payload` block at session end
+- `evaluation_payload: {}` field added to `create_blackboard()` schema
+
+Notebook v2.1 (20 cells total):
+- Cell 1: Imports updated for v2.1 functions
+- Cell 3: Baseline generation call added; session opens "Welcome to The Creative Prism"
+- Cell 7b: Creator Pass 2 `max_tokens` 1200 → 2400 (Exp 5 fix)
+- Cell 10: Stage 8 signal extraction converted to JSON format; `max_tokens` 400 → 800
+- Cell 10c (NEW): Stage 8c Second Loop — re-runs Creative Team when
+  `second_exploration.triggered` is True (Exp 5 fix)
+- Cell 12: `assemble_evaluation_payload(blackboard, baseline_response)` before
+  `save_session()`
+
+Prompt files updated:
+- `director.md` v1.3 — governed domain constraint recognition section added
+- `researcher.md` v1.3 — governed domain as Proactive Behavior 2 (Category 1)
+- All other prompt files — "Creative Mirror" references removed, confirmed clean
+
+Repository:
+- Renamed from `intelligence-of-seeing` to `creative_prism` on GitHub
+- `phase_3_visualization/` added to `.gitignore` (large binary files)
+- Last commit: "engine+notebook+eval: v2.1 complete — second loop, governed domain
+  prompts, dual evaluator"
+
+---
+
+### [2026-04-08] Evaluation Framework — prism_evaluator.py v2.0
+
+**Status:** COMPLETE
+**File:** `phase_2_experiments/prism_evaluator.py`
+
+**Architecture:**
+- Gemini 1.5 Pro + GPT-4o score sessions independently (cross-family, no alignment bias)
+- Both evaluators receive identical evaluation prompt and score blind
+- Agreement calculated per dimension (≤1 point = agree; divergence flags rubric ambiguity)
+- Composite score = average of both evaluators — authoritative result
+- Skips already-evaluated sessions (no re-spending API budget)
+- Outputs `eval_<session_id>.json` to `phase_2_experiments/outputs/`
+
+**Tier 1 metrics (computed from session JSON, no LLM required):**
+1. Brief Specificity Delta — brief word count / prompt word count (>1.5 = meaningful)
+2. Pass 1→2 Novelty — 1 - (shared words / total unique words) across ideation cycles
+3. Researcher Citation Rate — proportion of research_trace entries with citation signals
+
+**Tier 2 dimensions (LLM scored):** Anchor Integrity · Constraint Engagement ·
+Structural Coherence · Adaptive Interpretation · Failure Honesty
+
+**Requires in .env:** `ANTHROPIC_API_KEY` · `GEMINI_API_KEY` · `OPENAI_API_KEY`
+
+**Rationale for cross-family design:** Using two evaluators from different AI families
+eliminates the alignment bias that would arise from using a single evaluator or two
+evaluators from the same family. Agreement between independent evaluators replaces
+the need for human inter-rater reliability checks.
+
+---
+
+## NEXT MILESTONE — v3.0 Experimental Runs
+
+**Target:** Lock system at v3.0, run standardized experiments on two test groups
+
+**Two patches not yet applied — apply before v3.0 lock:**
+
+Patch A — Session notes (Cell 12, before save_session):
+```python
+session_notes = input("\nSession notes (press Enter to skip):\n> ").strip()
+if session_notes:
+    blackboard["session_metadata"]["notes"] = session_notes
+```
+
+Patch B — Scenario metadata (Cell 3, after scribe_log session_start):
+```python
+scenario_id = input("Scenario ID (press Enter to skip): ").strip()
+if scenario_id:
+    scenario_category = input("Category: ").strip()
+    blackboard["session_metadata"]["scenario_metadata"] = {
+        "scenario_id":       scenario_id,
+        "category":          scenario_category,
+        "prompt_as_entered": initial_prompt
+    }
+    print(f"  Scenario: {scenario_id} [{scenario_category}]")
+```
+
+**Test set:** 30 prompts in `_resources/User Test Prompts/THE_30-PROMPT_CORE_SET.docx`
+(15 stress test + 15 conventional enterprise). Stress test set additionally expanded
+by ~7 unique prompts in `System_Stress_Test_Prompts___scoring_rubric.md`.
+Peter to add bookstore + up to 4 more conventional prompts before v3.0 lock.
+
+**Sequencing:**
+1. Apply Patches A and B
+2. Diagnostic pass — 3-5 stress test prompts, fix critical failures
+3. Lock at v3.0
+4. Run Group 1 (standard set) first — primary efficacy claim
+5. Run Group 2 (stress test) second — robustness characterization
 
 ---
 
@@ -356,7 +524,8 @@ SVG source files: `phase_3_visualization/metaball_dev/eyedev/`
 |---|---|---|---|---|---|---|
 | 2026-04-01 | Creator | practicality | 0.40 | 0.65 | Exp 3 (chicken parm) | Director raised for practical business problem |
 | 2026-04-01 | Critic | critical_strictness | 0.90 | 0.95 | Exp 3 (chicken parm) | Director raised to protect against financial risk |
-| — | — | — | — | — | — | v2.0 traits matrix not yet tested |
+| 2026-04-06 | Creator | intellectual_adventurousness | raised | — | Exp 5 (ADD/perfectionism) | Director raised for conceptual reframing problem |
+| 2026-04-06 | Researcher | citation_rigor | raised | — | Exp 5 (ADD/perfectionism) | Director raised; citations were precise and substantive |
 
 ---
 
@@ -387,10 +556,11 @@ SVG source files: `phase_3_visualization/metaball_dev/eyedev/`
 | `idea_space` not yet populated | Low | Noted | Schema field exists, Phase 1 doesn't write to it yet |
 | Researcher autonomous trigger not wired | Low | Noted | Prompt describes behavior, code doesn't implement trigger |
 | Scribe LLM call not implemented | Low | Noted | `scribe_log()` is mechanical Python. Scribe LLM call is future |
-| Discovery prompt flatness | Medium | Partially fixed | v1.5.2 added technique push after turn 2 — needs live testing |
-| Prompt files still say "Creative Mirror" | Medium | Pending | Find-and-replace in Cursor needed on all 7 prompt files in `phase_2_experiments/prompts/` |
 | Bug 4 (duplicate brief entries) | Low | Diagnosed | Audit update_brief_doc calls in Director Review |
 | Iteration loop in v2.0 simplified | Low | Noted | Prints skip message instead of re-running full team |
+| Director closing question hangs | Low | Noted | Stage 9 asks a question but no Cell 13 collects the response — known gap, v4.0 scope |
+| Session notes not yet captured | Low | Pending | Patch A code written, not yet applied to notebook |
+| Scenario metadata not yet injected | Low | Pending | Patch B code written, not yet applied to notebook |
 
 ---
 
@@ -398,20 +568,22 @@ SVG source files: `phase_3_visualization/metaball_dev/eyedev/`
 
 ```
 Phase 1  Early Experiments        Complete
-           Socratic Spiral, Prisim, HITL, temperature sweeps
+           Socratic Spiral, Prism, HITL, temperature sweeps
            phase_1_experiments/
 
-Phase 2  Full Studio Workflow     Active — v2.0 current
-           Engine v2.0 — traits matrix, adaptive discovery, team config
-           Experiment 5 pending — first v2.0 live run
+Phase 2  Full Studio Workflow     Active — v2.1 current
+           Engine v2.1 — baseline generation, evaluation payload, second loop
+           Experiments 1-5 complete · Session comparison complete
+           Evaluation framework (prism_evaluator.py v2.0) complete
+           Next: Apply Patches A+B → diagnostic pass → lock v3.0 → experimental runs
            phase_2_experiments/
 
 Phase 3  Visualization            Active (parallel track)
            Galaxy/flower (Sketch 21) — frozen
-           Membrane landscape (Sketch 22) — Step 2 next
-           Eye motif — active exploration
+           Membrane landscape (Sketch 22) — Step 1 locked, Step 2 next (Gemini)
+           Eye motif — visual language exploration, prototype pending
            Replay instrument MVP for creativeprism.ai
-           phase_3_visualization/
+           phase_3_visualization/ (gitignored)
 ```
 
 ---
