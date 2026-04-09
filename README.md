@@ -1,11 +1,11 @@
-# The Intelligence of Seeing (IoS)
+# The Creative Prisim 
 ### A Human-Centered AI Creative Studio
 
 ---
 
 ## What This Is
 
-The Intelligence of Seeing is a research project exploring whether structured
+The Creative Prisim is a research project exploring whether structured
 multi-agent AI reasoning can function as a cognitive prisim — a tool that makes
 the process of human thinking visible, navigable, and more generative.
 
