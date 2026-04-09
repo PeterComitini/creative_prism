@@ -18,7 +18,7 @@ remains the final authority at every stage.
 
 ## The Creative Prisim
 
-The current phase of the project is **The Creative Prisim** — a five-role AI studio
+The current phase of the project is **The Creative Prism** — a five-role AI studio
 that runs a nine-stage creative reasoning workflow.
 
 **Five studio roles:**
@@ -44,7 +44,7 @@ brief. The Researcher responds to what the team produced, not just the brief in 
 
 ## Intellectual Foundation
 
-The Creative Prisim is grounded in a specific intellectual lineage:
+The Creative Prism is grounded in a specific intellectual lineage:
 
 - **Bohm** — *Thought as a System* — proprioception of thought as the philosophical foundation
 - **Dowd** — *Taking Root to Fly* — somatic proprioception as the origin of the insight
@@ -57,7 +57,7 @@ The Creative Prisim is grounded in a specific intellectual lineage:
 
 The through-line: Dowd showed that awareness of bodily movement patterns creates the
 possibility of changing them. Bohm applied the same logic to thought itself. The
-Creative Prisim applies it to AI-assisted creative reasoning — making the trajectory
+Creative Prism applies it to AI-assisted creative reasoning — making the trajectory
 of thinking visible so it can be examined, extended, and redirected.
 
 ---
@@ -119,5 +119,5 @@ documented in `creative_prisim/LOGBOOK.md`.
 
 ---
 
-*"The prisim does not replace the thinker. It expands the range of thinking available to them."*
-— The Creative Prisim, System Constitution V2.2
+*"The prism does not replace the thinker. It expands the range of thinking available to them."*
+— The Creative Prism, System Constitution V2.2
