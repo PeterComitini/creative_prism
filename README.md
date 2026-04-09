@@ -5,7 +5,7 @@
 
 ## What This Is
 
-The Creative Prisim is a research project exploring whether structured
+The Creative Prism is a research project exploring whether structured
 multi-agent AI reasoning can function as a cognitive prisim — a tool that makes
 the process of human thinking visible, navigable, and more generative.
 
