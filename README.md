@@ -1,4 +1,4 @@
-# The Creative Prisim 
+# The Creative Prism 
 ### A Human-Centered AI Creative Studio
 
 ---
