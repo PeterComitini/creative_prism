@@ -16,7 +16,7 @@ remains the final authority at every stage.
 
 ---
 
-## The Creative Prisim
+## The Creative Prism
 
 The current phase of the project is **The Creative Prism** — a five-role AI studio
 that runs a nine-stage creative reasoning workflow.
