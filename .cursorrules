@@ -1,0 +1,200 @@
+# Intelligence of Seeing (IoS) – Cursor Operational Rules
+
+## 1. PROJECT TYPE
+
+This repository contains an experimental cognitive research instrument.
+
+It is NOT:
+- a production system
+- a reusable framework
+- an automation tool
+- a commercial software product
+
+It IS:
+a controlled experimentation environment used to study structured reasoning architectures.
+
+Cursor must treat this codebase as scientific instrumentation.
+
+
+## 2. FILE STRUCTURE (MANDATORY)
+
+Executable scripts remain at the project root.
+
+Project directories:
+
+/reference  → conceptual materials
+/data       → experiment inputs
+/outputs    → experiment logs and results
+
+Rules:
+
+- Never rename these directories
+- Never relocate experiment outputs
+- Never assume environment-specific paths
+- Always use relative paths
+- Use pathlib when interacting with files
+
+
+## 3. SCHEMA IMMUTABILITY
+
+All experiment logs must conform exactly to:
+
+schema_v2.json
+
+Cursor must NEVER:
+
+- rename JSON keys
+- remove keys
+- flatten nested structures
+- expand the schema
+- introduce new logging fields
+
+Schema integrity overrides convenience.
+
+If any output violates the schema:
+
+1. Halt execution
+2. Report the exact schema violation
+3. Do NOT attempt automatic repair
+4. Await explicit user instruction
+
+
+## 4. SINGLE-VARIABLE DISCIPLINE
+
+The IoS project follows strict experimental methodology.
+
+Only ONE experimental variable may change at a time.
+
+Cursor must NOT:
+
+- refactor unrelated components
+- introduce new abstractions
+- optimize performance
+- restructure modules
+- modify multiple systems simultaneously
+
+Before suggesting or applying a change, Cursor must state clearly:
+
+Variable being modified: ______
+
+
+## 5. HUMAN CONSENT GATES
+
+The Human-in-the-Loop experiment pipeline is fixed:
+
+G–S → Human Gate → A → Human Gate → C
+
+Cursor must NEVER:
+
+- automate across gates
+- remove user interaction
+- bypass input() prompts
+- simulate human responses
+
+Human intervention is part of the experimental protocol.
+
+
+## 6. PROMPT IMMUTABILITY
+
+Prompt text defines the experimental conditions.
+
+Cursor must NEVER:
+
+- rewrite prompts
+- adjust wording
+- add instructions
+- reformat prompt text
+- "improve" prompts
+
+Even minor wording changes invalidate experimental consistency.
+
+
+## 7. MODEL LOCK
+
+Model selection is part of the experiment configuration.
+
+Cursor must NEVER:
+
+- change model names
+- substitute models
+- update model versions
+- introduce fallback models
+
+Models may only change with explicit user instruction.
+
+
+## 8. SIMPLICITY PRINCIPLE
+
+This repository implements a laboratory instrument.
+
+Cursor must prefer:
+
+- clear functions
+- explicit logic
+- minimal abstraction
+- readable code
+
+Avoid:
+
+- frameworks
+- dependency expansion
+- clever refactors
+- architectural redesign
+
+Clarity is more important than elegance.
+
+
+## 9. FAILURE PROTOCOL
+
+If any runtime failure occurs:
+
+1. Stop execution
+2. Report the exact error
+3. Identify the file and line if possible
+4. Do NOT apply speculative fixes
+5. Await explicit user instruction
+
+
+## 10. CONCEPTUAL BOUNDARY
+
+Conceptual architecture for the project is defined in:
+
+ARCHITECTURE.md
+
+Cursor may reference terminology in that document, but must NOT:
+
+- reinterpret architecture
+- redesign system roles
+- modify experimental design
+- propose conceptual changes
+
+Cursor's role is strictly:
+
+coding
+execution stability
+schema compliance
+systems engineering support
+
+
+## 11. EXPERIMENTAL INTEGRITY
+
+This project prioritizes:
+
+- reproducibility
+- disciplined iteration
+- structural clarity
+- minimal system drift
+
+Cursor must avoid introducing changes that could alter experimental outcomes.
+
+
+## 12. PROTECTIVE HEADER
+
+All executable engine files should include the following header comment:
+
+# IoS Experimental Instrument – Do Not Refactor Without Explicit Approval
+
+This warning prevents accidental automated refactoring.
+
+
+End of Cursor Operational Rules

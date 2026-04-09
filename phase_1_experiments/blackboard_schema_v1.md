@@ -1,0 +1,100 @@
+Creative Prisim
+Blackboard Data Schema v1 markdown
+Intelligence of Seeing Project
+
+{
+  "session_metadata": {
+    "session_id": "",
+    "timestamp": "",
+    "system_version": "creative_prisim_v1",
+    "user_prompt": "",
+    "director_summary": ""
+  },
+
+  "discovery": {
+    "context_notes": "",
+    "user_goals": "",
+    "constraints": [],
+    "preferences": [],
+    "exploratory_prompts": [],
+    "sacrificial_prompts": [],
+    "discovery_insights": []
+  },
+
+  "creative_brief": {
+    "challenge": "",
+    "context": "",
+    "desired_result": "",
+    "constraints_or_preferences": [],
+    "research_needs": [],
+    "open_questions": []
+  },
+
+  "research_insights": [
+    {
+      "research_id": "",
+      "topic": "",
+      "source": "",
+      "insight": "",
+      "relevance": "",
+      "introduced_by": ""
+    }
+  ],
+
+  "idea_space": [
+    {
+      "idea_id": "",
+      "origin_role": "creator",
+      "idea_description": "",
+      "rationale": "",
+      "influences": [],
+      "critique_notes": [],
+      "refinement_history": []
+    }
+  ],
+
+  "candidate_directions": [
+    {
+      "direction_id": "",
+      "title": "",
+      "description": "",
+      "reasoning": "",
+      "supporting_ideas": [],
+      "research_influences": []
+    }
+  ],
+
+  "director_review": {
+    "review_notes": "",
+    "revision_requested": false
+  },
+
+  "presentation": {
+    "presented_candidates": [],
+    "presentation_summary": ""
+  },
+
+  "user_feedback": {
+    "preferred_direction": "",
+    "reactions": [],
+    "concerns": [],
+    "new_insights": []
+  },
+
+  "final_synthesis": {
+    "selected_direction": "",
+    "refined_solution": "",
+    "reasoning_summary": ""
+  },
+
+  "reasoning_trace": [
+    {
+      "step": 0,
+      "timestamp": "",
+      "role": "",
+      "action": "",
+      "target": "",
+      "summary": ""
+    }
+  ]
+}

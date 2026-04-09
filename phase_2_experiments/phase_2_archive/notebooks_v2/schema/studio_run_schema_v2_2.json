@@ -1,0 +1,133 @@
+{
+  "session_metadata": {
+    "session_id": "",
+    "timestamp": "",
+    "system_version": "creative_prisim_v1.2",
+    "schema_version": "2.2",
+    "environment": "Creative Prisim Studio",
+    "director_model": "",
+    "director_summary": "",
+    "notes": ""
+  },
+
+  "user_prompt": "",
+
+  "discovery": {
+    "orientation_summary": "",
+    "context_insights": [],
+    "desired_outcome": "",
+    "preferences": [],
+    "exploratory_prompts": [],
+    "sacrificial_exploration": {
+      "probe_prompt": "",
+      "user_response": "",
+      "insight_extracted": ""
+    }
+  },
+
+  "creative_brief": {
+    "challenge": "",
+    "context": "",
+    "desired_result": "",
+    "constraints": [],
+    "research_insights": [],
+    "open_questions": []
+  },
+
+  "research_trace": [
+    {
+      "research_id": "",
+      "initiated_by": "",
+      "query": "",
+      "sources": [],
+      "summary": "",
+      "influence_on_ideation": ""
+    }
+  ],
+
+  "idea_space": [
+    {
+      "idea_id": "",
+      "origin_role": "creator",
+      "idea_description": "",
+      "rationale": "",
+      "influences": [],
+      "critique_notes": [],
+      "refinement_history": []
+    }
+  ],
+
+  "ideation_cycles": [
+    {
+      "cycle_number": 1,
+      "creator_proposals": [
+        {
+          "raw_response": ""
+        }
+      ],
+      "critic_feedback": [
+        {
+          "raw_response": ""
+        }
+      ],
+      "synthesized_directions": []
+    }
+  ],
+
+  "candidate_set": [
+    {
+      "direction_id": "",
+      "internal_type": "",
+      "description": "",
+      "reasoning_summary": "",
+      "research_influences": [],
+      "critic_assessment": {
+        "strengths": [],
+        "concerns": [],
+        "refinement_notes": []
+      }
+    }
+  ],
+
+  "director_review": {
+    "alignment_with_brief": "",
+    "distinctiveness_assessment": "",
+    "balance_assessment": "",
+    "clarity_assessment": "",
+    "iteration_required": false
+  },
+
+  "presentation": {
+    "ordered_directions": [],
+    "director_commentary": []
+  },
+
+  "user_response": {
+    "selected_direction": null,
+    "feedback_summary": "",
+    "signals_extracted": []
+  },
+
+  "second_exploration": {
+    "triggered": false,
+    "reason": "",
+    "additional_cycles": []
+  },
+
+  "final_synthesis": {
+    "final_direction": null,
+    "refinements": [],
+    "summary": ""
+  },
+
+  "reasoning_trace": [
+    {
+      "step": 0,
+      "timestamp": "",
+      "role": "",
+      "action": "",
+      "target": "",
+      "summary": ""
+    }
+  ]
+}

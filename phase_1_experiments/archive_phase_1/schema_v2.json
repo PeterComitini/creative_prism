@@ -1,0 +1,88 @@
+{
+  "run_metadata": {
+    "experiment_id": "",
+    "phase": "",
+    "iteration": 0,
+    "timestamp": "",
+    "models": {
+      "G": "",
+      "S": "",
+      "A": "",
+      "C": ""
+    },
+    "parameters": {
+      "temperature": 0.0,
+      "max_tokens": 0
+    }
+  },
+
+  "input": {
+    "raw_text": "",
+    "human_intervention": {
+      "present": false,
+      "phase": "",
+      "description": ""
+    }
+  },
+
+  "gs_phase": {
+    "generator_output": "",
+    "structural_map": {
+      "principles": [],
+      "strategies": [],
+      "examples": [],
+      "dependencies": [],
+      "abstraction_layers": {
+        "macro": [],
+        "meso": [],
+        "micro": []
+      }
+    }
+  },
+
+  "adversarial_phase": {
+    "assumptions_flagged": [],
+    "causal_gaps_identified": [],
+    "overgeneralizations_detected": [],
+    "abstraction_conflicts": [],
+    "dependency_breaks": [],
+    "primary_instability_type": "",
+    "notes": ""
+  },
+
+  "compression_phase": {
+    "stabilized_claim": "",
+    "revised_structural_map": {
+      "principles": [],
+      "strategies": [],
+      "examples": [],
+      "dependencies": [],
+      "abstraction_layers": {
+        "macro": [],
+        "meso": [],
+        "micro": []
+      }
+    },
+    "accepted_risk": "",
+    "open_variable": ""
+  },
+
+  "metrics": {
+    "cognitive_load": {
+      "pre": 0,
+      "post": 0
+    },
+    "clarity_score": 0,
+    "proprioceptive_gain": 0,
+    "entropy_reduction_ratio": 0.0,
+    "gap_detection_delta": 0,
+    "closure_risk": {
+      "level": "",
+      "reason": ""
+    },
+    "time_to_next_action_mins": 0
+  },
+
+  "process_notes": "",
+  "reasoning_summary": ""
+}

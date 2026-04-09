@@ -1,0 +1,66 @@
+# Creative Prisim — .gitignore
+# Treat as public repo — conservative exclusions
+# Repository: the_intelligence_of_seeing / creative_prisim
+
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+*.key
+*.pem
+
+# ── Core IP — Not Public Yet ──────────────────────────────────────────────────
+# Role prompts and governance documents contain the system's intellectual core.
+# Will be released deliberately when ready.
+prompts/
+governance/
+Creative Prisim System Prompts/
+
+# ── Research Resources ────────────────────────────────────────────────────────
+# Papers, PDFs, reference materials — copyright and IP considerations.
+_resources/
+
+# ── Session Data ──────────────────────────────────────────────────────────────
+# Session JSONs and brief documents accumulate quickly, contain no code.
+# Curate notable sessions manually before committing as examples.
+sessions/session_*.json
+sessions/brief_*.md
+!sessions/.gitkeep
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+# Never commit notebook outputs — clear before committing
+.ipynb_checkpoints/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Archives & Downloads ──────────────────────────────────────────────────────
+*.zip
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+phase_3_visualization/
