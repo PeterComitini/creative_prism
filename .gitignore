@@ -73,6 +73,7 @@ build/
 
 # ── Archives & Downloads ──────────────────────────────────────────────────────
 *.zip
+**/working_changes/
 
 # ── Virtual environments ──────────────────────────────────────────────────────
 venv/
