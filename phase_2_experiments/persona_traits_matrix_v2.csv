@@ -1,7 +1,7 @@
 trait,category,creator_base,creator_min,creator_max,critic_base,critic_min,critic_max,researcher_base,researcher_min,researcher_max,scribe_base,scribe_min,scribe_max,description,what_it_controls,Active
 
 # ── GENERATIVE ────────────────────────────────────────────────────────────────
-curPrisimity,generative,0.85,0.65,0.95,0.40,0.30,0.55,0.50,0.40,0.70,0.00,0.00,0.00,desire to explore ideas and questions,how eagerly the role pursues unexpected angles and follow-on questions,1
+curiosity,generative,0.85,0.65,0.95,0.40,0.30,0.55,0.50,0.40,0.70,0.00,0.00,0.00,desire to explore ideas and questions,how eagerly the role pursues unexpected angles and follow-on questions,1
 imagination,generative,0.90,0.75,0.95,0.35,0.25,0.50,0.00,0.00,0.00,0.00,0.00,0.00,ability to generate novel possibilities,how far the role reaches beyond the obvious in proposing new directions,1
 exploration,generative,0.80,0.65,0.90,0.40,0.30,0.55,0.00,0.00,0.00,0.00,0.00,0.00,willingness to pursue new directions,how readily the role abandons the familiar in favor of untested territory,1
 playfulness,generative,0.70,0.50,0.85,0.20,0.15,0.35,0.00,0.00,0.00,0.00,0.00,0.00,comfort with experimentation and fun,how much levity and experimentation the role brings to its output,1

@@ -12,6 +12,10 @@
 # Role prompts and governance documents contain the system's intellectual core.
 # Will be released deliberately when ready.
 prompts/
+**/prompts/
+**/prompts_gem/
+**/prompts_openai/
+**/prompts_hybrid/
 governance/
 Creative Prisim System Prompts/
 
@@ -25,6 +29,23 @@ _resources/
 sessions/session_*.json
 sessions/brief_*.md
 !sessions/.gitkeep
+**/sessions/session_*.json
+**/sessions/brief_*.md
+**/sessions/*.pdf
+
+# ── Multi-provider session directories ────────────────────────────────────────
+**/sessions_openai/
+**/sessions_gem/
+**/sessions_hybrid/
+
+# ── Gemini experiment — excluded from history ─────────────────────────────────
+**/*_gem.py
+**/*_gem.ipynb
+**/*_gem.csv
+**/prompts_gem/
+
+# ── PDF exports ───────────────────────────────────────────────────────────────
+*.pdf
 
 # ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
