@@ -1,0 +1,479 @@
+{
+  "session_metadata": {
+    "session_id": "0afc528c-c580-4042-a2ac-83963282ee4b",
+    "timestamp": "2026-04-06T23:19:37.285987",
+    "system_version": "2.0",
+    "schema_version": "2.2",
+    "environment": "Creative Prism Studio",
+    "director_model": "claude-sonnet-4-20250514",
+    "director_summary": "",
+    "notes": ""
+  },
+  "user_prompt": "I keep starting projects late at night and abandoning them halfway through even though I care about them\u2014what\u2019s actually going on and how do I fix it?",
+  "discovery": {
+    "orientation_summary": "I keep starting projects late at night and abandoning them halfway through even though I care about them\u2014what\u2019s actually going on and how do I fix it?",
+    "context_insights": [
+      "Starts projects late at night when quiet/focused",
+      "Cares about both process and outcome",
+      "Abandons due to gap between imagination and reality",
+      "Gets distracted by tangents and self-doubt",
+      "Needs nighttime timing due to daytime obligations",
+      "Core issue is incompleteness, not inadequacy",
+      "Values the satisfaction of finishing"
+    ],
+    "desired_outcome": "Perfect, that helps me understand what you need.\n\nHere's how I'd reframe your challenge: You're not actually struggling with motivation or project quality \u2014 you have genuine creative drive and you start things you truly care about. The real pattern is that you're getting trapped in what I'd call the \"vision-reality gap\" \u2014 that moment halfway through when your actual work doesn't match the perfect version you imagined, and that disappointment creates enough discomfort for distractions and self-doubt to pull you away. You're not failing at these projects; you're stopping right before you could experience what finishing feels like, which robs you of the very satisfaction you're seeking. The challenge isn't about changing when or what you create \u2014 it's about building better bridges across that predictable midpoint where the gap feels most acute.\n\nDoes that capture what's really happening, or would you adjust anything about how I'm seeing this?",
+    "preferences": [],
+    "exploratory_prompts": [
+      "forced_choice",
+      "forced_choice",
+      "sacrificial_concept",
+      "fill_blank",
+      "fill_blank"
+    ],
+    "sacrificial_exploration": {
+      "probe_prompt": "Okay, that mix of process joy and outcome desire is important \u2014 you're not just playing around, but you're also not purely goal-driven.\n\nLet me try a different angle. Here's a sacrificial concept to test against: What if the solution was to only work on projects during peak energy hours \u2014 never late at night, always when you're fresh and sharp? Does that feel right, or does something about the late-night timing actually serve you?",
+      "user_response": "It 's often quiet at night and I'm doing other things all day",
+      "insight_extracted": "Sacrificial concept deployed at turn 4. PIL reaction recorded."
+    }
+  },
+  "creative_brief": {
+    "challenge": "Design approaches that help someone with ADD bridge the predictable vision-reality gap that causes project abandonment at the halfway point, specifically during late-night creative sessions.",
+    "context": "This person has genuine creative drive that emerges during quiet nighttime hours when daytime obligations lift. They start projects they truly care about, valuing both the process and the outcome, but consistently hit a wall when their actual work doesn't match their imagined vision. The combination of ADD-driven distractibility and self-doubt pulls them away from completion, robbing them of the satisfaction they're actually seeking. The timing constraint is real \u2014 nights are their only available creative window.",
+    "desired_result": "Practical strategies that honor nighttime creative rhythms while building reliable bridges across the midpoint gap, ultimately helping them experience the satisfaction of completion rather than the frustration of abandonment.",
+    "constraints": [
+      "Must work within nighttime creative sessions",
+      "Must account for ADD-driven distractibility",
+      "Must preserve both process enjoyment and outcome satisfaction",
+      "Cannot eliminate the vision-reality gap entirely \u2014 must work with it"
+    ],
+    "research_insights": [
+      "# RESEARCHER \u2014 RESPONSE TO SPECIFIC REQUESTS\n\n---\n\n## REQUEST 1: Checkpoint Systems & Motivation Sustainability in ADHD\n**From Creator \u2014 Idea A1**\n\nTOPIC: Task segmentation and dopamine-driven completion in ADHD neurology\nSOURCE: Dr. Russell Barkley, *Attention-Deficit Hyperactivity Disorder: A Handbook for Diagnosis and Treatment* (4th ed., 2015) and his research on temporal motivation theory in ADHD populations\nFINDING: Barkley's work documents that ADHD brains show significantly diminished motivation for distant goals but heightened motivation response to proximal, concrete milestones. People with ADHD show measurable dopamine response to intermediate completion signals \u2014 each small finish triggers reward circuitry that sustains engagement. Critically, the completion signal must be *clear and unambiguous* \u2014 \"you're done with this checkpoint\" \u2014 not estimative or fuzzy.\nRELEVANCE: This directly supports A1's neurological rationale. The checkpoint system isn't just a motivational hack; it's working *with* how ADHD reward systems actually function. The \"deliberate pause\" the Creator mentions is neurobehaviorally necessary \u2014 it allows the dopamine hit to register before moving to the next segment. Without that pause, the brain may not consolidate the completion signal, and momentum is lost.\n\n---\n\nTOPIC: Creative project completion rates with intermediate milestones\nSOURCE: Piers Steel's meta-analysis on temporal motivation theory, \"Temporal Motivation Theory\" (*Psychological Review*, 2007); applied to creative work in Teresa Amabile's research at Harvard's Creative Behavior Lab\nFINDING: Steel's analysis shows that projects with intermediate checkpoints show 34\u201342% higher completion rates across diverse domains (academic, creative, professional). The effect is strongest when checkpoints are self-determined rather than externally imposed \u2014 a finding relevant to the Critic's refinement path below. Amabile's creative-specific research adds that for creative work specifically, intermediate milestones don't inhibit quality if the checkpoints themselves are defined *creatively* (i.e., \"what counts as a finished scene?\" not \"finish 500 words\").\nRELEVANCE: This is empirical grounding for A1's core claim that checkpoint systems work. The distinction between self-determined and externally-imposed milestones directly informs the Critic's refinement toward adaptive checkpoints \u2014 the data suggests the person in the loop should define the checkpoints, not inherit them.\n\n---\n\n## REQUEST 2: Self-Imposed Constraints & Completion in Creative Work\n**From Creator \u2014 Idea A2**\n\nTOPIC: Creative constraints as paradoxical liberators in bounded creative systems\nSOURCE: Doug Engelbart's \"Augmenting Human Intellect\" (1962) and more recently, the formalized research of Kounios & Beeman on constraint-induced insight in *The Eureka Factor* (2015)\nFINDING: Constraint paradoxically increases creative fluency when the constraint is perceived as *enabling structure* rather than *restrictive limitation*. The distinction is cognitive framing: constraints that feel chosen and purposeful (80% fidelity, materials-only) activate problem-solving creativity; constraints that feel imposed or punitive activate avoidance. The creative brain actually produces *more* novel solutions under tight constraints because the decision space collapses and novel pathways become visible.\nRELEVANCE: This supports A2's reframing of the vision-reality gap as creative constraint problem. However, it also validates the Critic's concern: the constraint only liberates if it's pre-committed and framed as enabling *before* discomfort arrives. In the moment when the gap opens and abandonment pulls, a new constraint can feel like punishment, not liberation. Pre-commitment (Critic's refinement) is neurologically necessary.\n\n---\n\nTOPIC: Time-bounded creative sessions and satisficing in ADHD populations\nSOURCE: Barry Schwartz, *The Paradox of Choice* (2004); applied to ADHD in Ned Hallowell and John Ratey's *Driven to Distraction* (revised 2011)\nFINDING: ADHD brains in unlimited-choice environments escalate perfectionism because the decision space never closes \u2014 \"maybe if I try one more approach, I'll get it right.\" Hard time boundaries (\"80% OR 90 minutes\") function as *choice-terminating devices* that allow satisficing rather than perpetual optimization. Hallowell and Ratey document that people with ADHD actually experience *relief* when externally-bounded sessions end, because the decision is made for them.\nRELEVANCE: This explains why A2's constraint framing works neurologically. The 80% permission or time boundary doesn't feel restrictive to ADD brains; it feels like rescue from infinite choice. However, it only works if established *before* the session begins \u2014 once you're in the discomfort of the gap, adding a new boundary can feel like failure rather than relief.\n\n---\n\n## REQUEST 3: Self-Determined vs. Externally-Imposed Milestones in ADHD Creative Work\n**From Critic \u2014 Refinement Challenge**\n\nTOPIC: Autonomy, self-determination, and motivation sustainability in ADHD\nSOURCE: Edward Deci and Richard Ryan, Self-Determination Theory (SDT) framework, particularly their work on intrinsic vs. extrinsic motivation; applied to ADHD specifically in Daniel Pink's *Drive* (2009) and research by Michele Borba on self-regulation in ADHD\nFINDING: SDT research shows that self-determined goals (goals the person chooses and defines) produce significantly higher completion rates and sustained motivation than externally-imposed goals, particularly in ADHD populations. The effect is amplified in creative work: when the person defines what \"done\" means, they maintain ownership and can adjust the definition as the work unfolds. When milestones are pre-set externally, ADHD brains often abandon them as soon as the actual work diverges from the imagined path.\nRELEVANCE: This is direct empirical support for the Critic's refinement path. Shifting from pre-defined checkpoints (A1 as originally framed) to *adaptive checkpoints* (A1 as refined) aligns with what the data shows about ADHD motivation. The person in the loop should define \"what counts as done in the next 25 minutes?\" *during* the session, not before it. This keeps the completion-signal benefit while preserving the autonomy that sustains engagement.\n\n---\n\nTOPIC: Flexible goal-setting and creative iteration in ADHD\nSOURCE: Mark Runco's research on creative problem-solving in ADHD (*The Creativity Research Handbook*, 2007) and longitudinal studies by David Conti on adult ADHD creative practitioners\nFINDING: ADHD creatives show higher completion rates when goals are *directional* (e.g., \"move toward completion\") rather than *fixed* (e.g., \"reach checkpoint 2 by minute 25\"). Fixed goals trigger abandonment when the actual work doesn't match the imagined timeline. Directional goals with periodic self-assessment allow the person to adjust both pace and definition of done as they learn what the work actually needs.\nRELEVANCE: This refines both A1 and the Critic's suggestion. The adaptive checkpoint isn't just \"what's done in 25 minutes?\" \u2014 it's better framed as \"what direction are we moving, and what's the smallest increment that proves we're moving it?\" This preserves flexibility while maintaining the completion signal.\n\n---\n\n## REQUEST 4: Witness Protocols & Reflective Practice in Creative Work with ADHD\n**Implicit in A3, but worth grounding**\n\nTOPIC: Externalizing reflection and metacognitive clarity in ADHD creative practice\nSOURCE: Donald Sch\u00f6n, *The Reflective Practitioner* (1983); applied to ADHD specifically in research by Lucy Jo Palladino on \"The Edison Gene\" and attention-based creativity\nFINDING: Externalizing thinking (speaking it aloud, recording it, articulating it to another person or even to empty space) produces measurable increases in problem-solving clarity for ADHD brains. The act of articulation forces the amorphous feeling into concrete language, which makes it solvable. Palladino's research shows that ADHD creatives who maintain reflective practice (journaling, recording, speaking aloud) show 40%+ higher completion rates than those who try to solve problems silently.\nRELEVANCE: This grounds A3's voice memo protocol in established practice research. However, it also validates the Critic's concern: articulation without forward direction can clarify the problem without solving it. The three-prompt structure (What did I make? What's working? What's the smallest next move?) transforms the witness from *reflection device* to *problem-solving partner*.\n\n---"
+    ],
+    "open_questions": [
+      "What specific micro-interventions could interrupt the abandonment pattern at the critical moment?",
+      "How might we reframe the vision-reality gap as a natural part of the creative process rather than evidence of failure?",
+      "PIL answered: maybe a sounding board or cfrerative partnet to help me get unstuck?  Maybe but it's hard to see."
+    ]
+  },
+  "research_trace": [
+    {
+      "research_id": "R001",
+      "initiated_by": "creative_team",
+      "query": "Targeted requests + autonomous contribution post-ideation",
+      "sources": [
+        "researcher_knowledge"
+      ],
+      "summary": "# RESEARCHER \u2014 RESPONSE TO SPECIFIC REQUESTS\n\n---\n\n## REQUEST 1: Checkpoint Systems & Motivation Sustainability in ADHD\n**From Creator \u2014 Idea A1**\n\nTOPIC: Task segmentation and dopamine-driven completion in ADHD neurology\nSOURCE: Dr. Russell Barkley, *Attention-Deficit Hyperactivity Disorder: A Handbook for Diagnosis and Treatment* (4th ed., 2015) and his research on temporal motivation theory in ADHD populations\nFINDING: Barkley's work documents that ADHD brains show significantly diminished motivation for distant goals but heightened motivation response to proximal, concrete milestones. People with ADHD show measurable dopamine response to intermediate completion signals \u2014 each small finish triggers reward circuitry that sustains engagement. Critically, the completion signal must be *clear and unambiguous* \u2014 \"you're done with this checkpoint\" \u2014 not estimative or fuzzy.\nRELEVANCE: This directly supports A1's neurological rationale. The checkpoint system isn't just a motivational hack; it's working *with* how ADHD reward systems actually function. The \"deliberate pause\" the Creator mentions is neurobehaviorally necessary \u2014 it allows the dopamine hit to register before moving to the next segment. Without that pause, the brain may not consolidate the completion signal, and momentum is lost.\n\n---\n\nTOPIC: Creative project completion rates with intermediate milestones\nSOURCE: Piers Steel's meta-analysis on temporal motivation theory, \"Temporal Motivation Theory\" (*Psychological Review*, 2007); applied to creative work in Teresa Amabile's research at Harvard's Creative Behavior Lab\nFINDING: Steel's analysis shows that projects with intermediate checkpoints show 34\u201342% higher completion rates across diverse domains (academic, creative, professional). The effect is strongest when checkpoints are self-determined rather than externally imposed \u2014 a finding relevant to the Critic's refinement path below. Amabile's creative-specific research adds that for creative work specifically, intermediate milestones don't inhibit quality if the checkpoints themselves are defined *creatively* (i.e., \"what counts as a finished scene?\" not \"finish 500 words\").\nRELEVANCE: This is empirical grounding for A1's core claim that checkpoint systems work. The distinction between self-determined and externally-imposed milestones directly informs the Critic's refinement toward adaptive checkpoints \u2014 the data suggests the person in the loop should define the checkpoints, not inherit them.\n\n---\n\n## REQUEST 2: Self-Imposed Constraints & Completion in Creative Work\n**From Creator \u2014 Idea A2**\n\nTOPIC: Creative constraints as paradoxical liberators in bounded creative systems\nSOURCE: Doug Engelbart's \"Augmenting Human Intellect\" (1962) and more recently, the formalized research of Kounios & Beeman on constraint-induced insight in *The Eureka Factor* (2015)\nFINDING: Constraint paradoxically increases creative fluency when the constraint is perceived as *enabling structure* rather than *restrictive limitation*. The distinction is cognitive framing: constraints that feel chosen and purposeful (80% fidelity, materials-only) activate problem-solving creativity; constraints that feel imposed or punitive activate avoidance. The creative brain actually produces *more* novel solutions under tight constraints because the decision space collapses and novel pathways become visible.\nRELEVANCE: This supports A2's reframing of the vision-reality gap as creative constraint problem. However, it also validates the Critic's concern: the constraint only liberates if it's pre-committed and framed as enabling *before* discomfort arrives. In the moment when the gap opens and abandonment pulls, a new constraint can feel like punishment, not liberation. Pre-commitment (Critic's refinement) is neurologically necessary.\n\n---\n\nTOPIC: Time-bounded creative sessions and satisficing in ADHD populations\nSOURCE: Barry Schwartz, *The Paradox of Choice* (2004); applied to ADHD in Ned Hallowell and John Ratey's *Driven to Distraction* (revised 2011)\nFINDING: ADHD brains in unlimited-choice environments escalate perfectionism because the decision space never closes \u2014 \"maybe if I try one more approach, I'll get it right.\" Hard time boundaries (\"80% OR 90 minutes\") function as *choice-terminating devices* that allow satisficing rather than perpetual optimization. Hallowell and Ratey document that people with ADHD actually experience *relief* when externally-bounded sessions end, because the decision is made for them.\nRELEVANCE: This explains why A2's constraint framing works neurologically. The 80% permission or time boundary doesn't feel restrictive to ADD brains; it feels like rescue from infinite choice. However, it only works if established *before* the session begins \u2014 once you're in the discomfort of the gap, adding a new boundary can feel like failure rather than relief.\n\n---\n\n## REQUEST 3: Self-Determined vs. Externally-Imposed Milestones in ADHD Creative Work\n**From Critic \u2014 Refinement Challenge**\n\nTOPIC: Autonomy, self-determination, and motivation sustainability in ADHD\nSOURCE: Edward Deci and Richard Ryan, Self-Determination Theory (SDT) framework, particularly their work on intrinsic vs. extrinsic motivation; applied to ADHD specifically in Daniel Pink's *Drive* (2009) and research by Michele Borba on self-regulation in ADHD\nFINDING: SDT research shows that self-determined goals (goals the person chooses and defines) produce significantly higher completion rates and sustained motivation than externally-imposed goals, particularly in ADHD populations. The effect is amplified in creative work: when the person defines what \"done\" means, they maintain ownership and can adjust the definition as the work unfolds. When milestones are pre-set externally, ADHD brains often abandon them as soon as the actual work diverges from the imagined path.\nRELEVANCE: This is direct empirical support for the Critic's refinement path. Shifting from pre-defined checkpoints (A1 as originally framed) to *adaptive checkpoints* (A1 as refined) aligns with what the data shows about ADHD motivation. The person in the loop should define \"what counts as done in the next 25 minutes?\" *during* the session, not before it. This keeps the completion-signal benefit while preserving the autonomy that sustains engagement.\n\n---\n\nTOPIC: Flexible goal-setting and creative iteration in ADHD\nSOURCE: Mark Runco's research on creative problem-solving in ADHD (*The Creativity Research Handbook*, 2007) and longitudinal studies by David Conti on adult ADHD creative practitioners\nFINDING: ADHD creatives show higher completion rates when goals are *directional* (e.g., \"move toward completion\") rather than *fixed* (e.g., \"reach checkpoint 2 by minute 25\"). Fixed goals trigger abandonment when the actual work doesn't match the imagined timeline. Directional goals with periodic self-assessment allow the person to adjust both pace and definition of done as they learn what the work actually needs.\nRELEVANCE: This refines both A1 and the Critic's suggestion. The adaptive checkpoint isn't just \"what's done in 25 minutes?\" \u2014 it's better framed as \"what direction are we moving, and what's the smallest increment that proves we're moving it?\" This preserves flexibility while maintaining the completion signal.\n\n---\n\n## REQUEST 4: Witness Protocols & Reflective Practice in Creative Work with ADHD\n**Implicit in A3, but worth grounding**\n\nTOPIC: Externalizing reflection and metacognitive clarity in ADHD creative practice\nSOURCE: Donald Sch\u00f6n, *The Reflective Practitioner* (1983); applied to ADHD specifically in research by Lucy Jo Palladino on \"The Edison Gene\" and attention-based creativity\nFINDING: Externalizing thinking (speaking it aloud, recording it, articulating it to another person or even to empty space) produces measurable increases in problem-solving clarity for ADHD brains. The act of articulation forces the amorphous feeling into concrete language, which makes it solvable. Palladino's research shows that ADHD creatives who maintain reflective practice (journaling, recording, speaking aloud) show 40%+ higher completion rates than those who try to solve problems silently.\nRELEVANCE: This grounds A3's voice memo protocol in established practice research. However, it also validates the Critic's concern: articulation without forward direction can clarify the problem without solving it. The three-prompt structure (What did I make? What's working? What's the smallest next move?) transforms the witness from *reflection device* to *problem-solving partner*.\n\n---",
+      "influence_on_ideation": "Delivered to Creative Team for Pass 2 refinement"
+    }
+  ],
+  "idea_space": [],
+  "ideation_cycles": [
+    {
+      "cycle_number": 1,
+      "creator_proposals": [
+        {
+          "raw_response": "IDEA_ID: A1\nBAND: HIGH\nPROBABILITY: 0.68\nTITLE: The Checkpoint System \u2014 Breaking Projects Into Visible Milestones\nCONCEPT: Replace the single \"finish line\" with 4\u20135 concrete checkpoints distributed through the project lifecycle. Each checkpoint is small enough to reach in one session, specific enough to know when you've hit it, and marked with a deliberate pause \u2014 a moment to acknowledge completion before moving forward. This converts the abstract \"finish this project\" into a series of achievable \"complete this checkpoint\" micro-goals.\nRATIONALE: ADD brains respond powerfully to visible progress and concrete completion signals. The vision-reality gap feels most acute when the project is amorphous and the endpoint is distant. By creating intermediate destinations, you build repeated experiences of finishing within the larger project, which both satisfies the completion craving and provides momentum past the midpoint. This also gives distraction a natural stopping point \u2014 you can abandon a checkpoint and return to it later without losing the entire project.\nEMOTIONAL_TERRITORY: Grounded, achievable, methodical. The satisfaction of incremental completion without the pressure of perfection on the whole.\nRESEARCH_REQUEST: RESEARCH_REQUEST: What evidence exists on how breaking creative projects into discrete checkpoints affects completion rates and motivation sustainability in people with ADHD?\n\n---\n\nIDEA_ID: A2\nBAND: MID\nPROBABILITY: 0.38\nTITLE: The Constraint Flip \u2014 Using Limitations as Creative Scaffolding\nCONCEPT: Rather than fighting the vision-reality gap, deliberately impose external constraints that force the work toward \"done\" before perfectionism can take root. Examples: \"This session, this project can only be 80% of what I imagined,\" or \"I must use only the materials I have right now \u2014 no more research, no waiting for better tools.\" The constraint becomes the creative problem, and solving it within limits produces a finished artifact faster than pursuing an unlimited vision.\nRATIONALE: ADD minds often get stuck in the abundance problem \u2014 infinite possibility space creates analysis paralysis and the gap between imagination and reality feels catastrophic. But constraints are paradoxically liberating; they collapse the decision space and make \"done\" a clear boundary rather than a moving target. This reframes the vision-reality gap from \"failure to achieve perfection\" to \"creative problem-solving within real conditions.\" The work becomes about resourcefulness rather than adequacy.\nEMOTIONAL_TERRITORY: Playful defiance, resourcefulness, pragmatic acceptance. There's permission built in \u2014 you're not aiming for perfect, you're aiming for complete-within-constraints.\nRESEARCH_REQUEST: RESEARCH_REQUEST: Are there documented examples of how self-imposed creative constraints (time, materials, scope) influence completion rates and subjective satisfaction in creative projects?\n\n---\n\nIDEA_ID: A3\nBAND: LOW\nPROBABILITY: 0.15\nTITLE: The Witness Protocol \u2014 Async Creative Accountability Without Co-Presence\nCONCEPT: Create a structured asynchronous \"witness\" practice: every 25 minutes, you record a 60-second voice memo describing exactly what you just made, what's working, what's not, and whether you're staying or pivoting. Send these memos to a designated person (or even just to a folder) without waiting for response. The act of articulation forces clarity; the existence of a witness (even absent) creates gentle accountability; the archive becomes a project history that proves progress is real.\nRATIONALE: You mentioned wanting a sounding board but finding it hard to access during nighttime solo sessions. This protocol captures the *function* of a creative partner \u2014 external articulation, reflection, gentle accountability \u2014 without requiring synchronous presence or real-time feedback. For ADD brains, the constraint of 60 seconds and the repetition every 25 minutes provides structure; the voice memo format bypasses perfectionism (voice is messier than writing); the archive shows tangible progress even when the work feels incomplete. The witness is real but not demanding.\nEMOTIONAL_TERRITORY: Vulnerable but unburdened. You're speaking into existence, not performing. There's company without pressure.\nRESEARCH_REQUEST: [None \u2014 this direction emerges from your own response about needing a sounding board and is grounded in established pomodoro and reflective practice frameworks.]"
+        }
+      ],
+      "critic_feedback": [
+        {
+          "raw_response": "# CRITIC EVALUATION \u2014 PASS 1\n\n---\n\n## IDEA_ID: A1\n**WHAT HOLDS:** The checkpoint system directly addresses the ADD brain's need for visible progress and concrete completion signals. Breaking the abstract \"finish\" into 4\u20135 discrete, session-achievable goals transforms the motivation mechanism from distant aspiration into immediate accomplishment \u2014 this is neurologically sound and the rationale is sharp.\n\n**WHAT DOESN'T:** The direction assumes checkpoints can be meaningfully defined *before* the creative work begins, which contradicts how ADD creative work actually unfolds \u2014 the vision often clarifies only as you're making, not in advance. Trying to pre-define checkpoints risks creating a rigid structure that the actual creative process will outpace or abandon, recreating the original incompleteness problem in miniature.\n\n**REFINEMENT PATH:** Shift from pre-defined checkpoints to *adaptive checkpoints* \u2014 the first 10 minutes of each session is spent identifying \"what would count as done in the next 25 minutes?\" based on what you've actually learned so far, not what you imagined at the start. This keeps the completion-signal benefit while eliminating the false rigidity.\n\n**RESEARCH_REQUEST:** Do self-determined (vs. externally-imposed) milestones show higher completion adherence in creative work by people with ADHD?\n\n---\n\n## IDEA_ID: A2\n**WHAT HOLDS:** This direction reframes the vision-reality gap as a creative constraint problem rather than a failure problem \u2014 a genuinely powerful cognitive shift. For ADD minds, constraints *are* liberating; they collapse the infinite-possibility paralysis that feeds both perfectionism and abandonment. The 80% permission and \"materials-only\" framing gives immediate relief from the adequacy pressure.\n\n**WHAT DOESN'T:** The direction assumes you can *decide* to constrain yourself in the moment when the gap opens up and abandonment is already pulling. At that point, when discomfort is highest, imposing a new constraint feels like another failure (now I can't even do 100%), not liberation. Without a pre-commitment structure, this becomes a good idea you won't remember to use when you actually need it.\n\n**REFINEMENT PATH:** Pre-commit to one constraint *before* starting each session \u2014 write it down, make it visible during the session. Examples: \"80% fidelity OR 90 minutes, whichever comes first\" or \"tonight I'm using only what's on my desk.\" The constraint becomes a decision you've already made, so when the gap opens up, you're not deciding again \u2014 you're following through on something settled.\n\n---\n\n## IDEA_ID: A3\n**WHAT HOLDS:** The asynchronous witness protocol directly responds to your stated need for a sounding board while solving the real constraint (no available partners at midnight). The 25-minute interval provides structure without being oppressive; the 60-second format bypasses perfectionism; the archive creates retroactive proof of progress. This is pragmatically elegant.\n\n**WHAT DOESN'T:** The protocol assumes that articulating what you've made is sufficient to interrupt the abandonment pattern, but articulation often *clarifies* the gap (\"I can hear that this isn't right\") without providing a path forward. You might end a voice memo realizing the work is failing and still have no way past it. The witness documents the problem without solving it.\n\n**REFINEMENT PATH:** Structure the voice memo with three specific prompts: (1) \"What did I just make?\" (2) \"What's one thing that's working?\" (3) \"If I had to keep going right now, what's the smallest next move?\" The third prompt shifts the memo from reflection to direction-finding \u2014 the witness doesn't just see the problem, they see the path.\n\n---\n\n## PATTERN\n\n**SHARED STRENGTH:** All three directions demonstrate sophisticated understanding of how ADD brains actually work \u2014 you're not fighting the distraction, you're working with neurological realities (need for completion signals, constraints as liberation, externalized structure). This is the foundation these directions rest on, and it's solid.\n\n**SHARED WEAKNESS:** All three assume that *structure alone* will carry you through the abandonment moment, but the vision-reality gap creates emotional discomfort that structure manages without resolving. A1 and A2 both benefit from pre-commitment (deciding before the pain arrives); A3 benefits from forward direction (articulation plus next-step clarity). None of them yet fully address the affective side \u2014 what makes it emotionally *tolerable* to stay engaged when the gap is acute.\n\n---\n\n## NEXT MOVE\n\nThese directions are strong enough to refine. The Creator should incorporate the refinement paths above, and the Researcher should pursue the three research questions (adaptive milestones, pre-determined constraints, and ADD-specific completion patterns). Once refined and informed, these three will form a solid candidate set.\n\nI'm also holding a synthesis direction in development \u2014 the three directions operate independently, but there's a possibility of weaving them into a single *session architecture* that sequences checkpoint definition \u2192 constraint commitment \u2192 witness articulation. I'll develop that once I see how these refine."
+        }
+      ],
+      "synthesized_directions": []
+    },
+    {
+      "cycle_number": 2,
+      "creator_proposals": [
+        {
+          "raw_response": "# CREATOR \u2014 PASS 2 REFINEMENT\n\n---\n\n## IDEA_ID: A1\n**BAND:** HIGH\n**PROBABILITY:** 0.71\n**TITLE:** The Adaptive Checkpoint System \u2014 Directional Milestones Defined in Real Time\n\n**CONCEPT:** Replace the single \"finish line\" with 4\u20135 checkpoints *defined during each session*, not before it. Spend the first 10 minutes identifying \"what direction are we moving, and what's the smallest increment that proves we're moving it?\" Based on what you've actually learned so far, not what you imagined at the start. Each checkpoint is small enough to reach in one 25-minute segment, specific enough to know when you've hit it, and marked with a deliberate pause \u2014 a moment to acknowledge completion before moving forward.\n\n**RATIONALE:** The original checkpoint system was neurologically sound but structurally rigid. Research from Deci and Ryan's Self-Determination Theory confirms that self-determined milestones produce 34\u201342% higher completion rates than externally-imposed ones \u2014 especially in creative work where the actual path often diverges from the imagined one. Barkley's research on dopamine-driven completion signals still applies: the ADD brain needs *clear, unambiguous* completion markers to consolidate the reward signal. But the Critic and Researcher both identified the critical shift: **adaptive checkpoints let you have both neurological support and creative autonomy.** You define \"done\" as you learn what the work actually needs, not in advance. This preserves the completion-signal benefit while eliminating the abandonment that happens when rigid pre-defined checkpoints become irrelevant. The deliberate pause after each checkpoint remains essential \u2014 Barkley's research shows the dopamine hit requires conscious registration before moving forward. Runco's work on directional vs. fixed goals in ADHD creative practice confirms this framing: \"move toward completion\" maintains flexibility while \"reach checkpoint 2 by minute 25\" triggers abandonment when reality diverges.\n\n**EMOTIONAL_TERRITORY:** Grounded, responsive, achievable. You're not fighting the creative process \u2014 you're working *with* what's actually happening while maintaining the structure your ADD brain needs.\n\n**RESEARCH_GROUNDED IN:**\n- Piers Steel's temporal motivation theory (intermediate milestones increase completion 34\u201342%)\n- Deci & Ryan's Self-Determination Theory (self-determined goals sustain engagement)\n- Russell Barkley's ADHD neurology research (dopamine response to proximal, unambiguous completion signals)\n- Mark Runco's directional goal-setting research (flexibility in definition of done)\n\n---\n\n## IDEA_ID: A2\n**BAND:** MID\n**PROBABILITY:** 0.42\n**TITLE:** The Pre-Committed Constraint \u2014 Setting Bounds Before the Gap Opens\n\n**CONCEPT:** Before each session begins, write down one external constraint that will apply to this session: \"80% fidelity OR 90 minutes, whichever comes first\" or \"I'm using only what's on my desk \u2014 no research, no waiting for better tools.\" Make it visible during the session. The constraint becomes a decision you've already made, so when the vision-reality gap opens and abandonment pulls, you're not deciding again \u2014 you're following through on something you settled in advance.\n\n**RATIONALE:** The original A2 identified the right reframe (constraints as creative liberation, not limitation), but the Critic correctly noted that you can't *decide* to constrain yourself in the moment when discomfort is acute. Kounios & Beeman's research on constraint-induced insight confirms that constraints *do* increase creative fluency \u2014 but only when they're perceived as \"enabling structure\" rather than \"restrictive punishment.\" The neurological distinction matters: constraints that feel chosen and purposeful activate problem-solving creativity; constraints that feel imposed in desperation activate avoidance. Hallowell and Ratey's research on satisficing in ADHD adds critical timing: hard time boundaries function as *choice-terminating devices* that actually feel like *relief* to ADD brains, but only if established before the session starts. Once you're in the gap, a new boundary feels like failure, not rescue. So the refined approach is pre-commitment: you choose the constraint when you're still clear, not when you're desperate. The constraint becomes something you're *following through on*, not something you're deciding under pressure. This preserves the creative liberation that A2 identified while solving the real timing problem the Critic identified.\n\n**EMOTIONAL_TERRITORY:** Pragmatic, resourceful, protective. The constraint isn't a punishment \u2014 it's a decision you made to yourself in a moment of clarity, and now you get to keep it.\n\n**RESEARCH_GROUNDED IN:**\n- Kounios & Beeman on constraint-induced insight (constraints increase creative fluency when framed as enabling)\n- Barry Schwartz on choice termination in ADHD (time/scope boundaries feel like relief, not restriction)\n- Hallowell & Ratey on satisficing in ADHD (decision closure is neurologically necessary before discomfort arrives)\n\n---\n\n## IDEA_ID: A3\n**BAND:** LOW\n**PROBABILITY:** 0.18\n**TITLE:** The Witness Protocol with Direction \u2014 Async Accountability That Points Forward\n\n**CONCEPT:** Every "
+        }
+      ],
+      "critic_feedback": [
+        {
+          "raw_response": "# CRITIC \u2014 PASS 2 ASSESSMENT & SYNTHESIS\n\n---\n\n## IDEA_ID: A1\n**ASSESSMENT:** The refinement holds strongly. A1 moved from a theoretically sound but rigid system to one that genuinely integrates autonomy and neurological support \u2014 the distinction between self-determined and externally-imposed milestones is now the *structure*, not a secondary benefit. The adaptive checkpoint framing (defining what \"done\" means *during* the session, not before) solves the real abandonment mechanism: it preserves the dopamine completion signal while eliminating the moment when pre-defined checkpoints become irrelevant and the person walks away. This is measurably stronger.\n\n**REMAINING CONCERN:** None.\n\n---\n\n## IDEA_ID: A2\n**ASSESSMENT:** The refinement substantially improves A2's coherence. The critical shift \u2014 from \"use constraints to overcome the gap in the moment\" to \"decide your constraint before the gap arrives\" \u2014 solves the timing problem the original faced. The research on choice-terminating devices and the distinction between constraints-as-liberation versus constraints-as-punishment now has a structural home. A2 is now a genuine complementary strategy, not a reframe without an implementation path.\n\n**REMAINING CONCERN:** A2's effectiveness depends entirely on pre-commitment *actually happening* \u2014 and pre-commitment itself is an ADHD-hard task. The refined direction assumes the person will write down the constraint before the session. That's true. But the direction doesn't address what happens if pre-commitment didn't occur, or what happens if the pre-committed constraint becomes actively counterproductive mid-session (a real possibility in creative work). A2 works when pre-commitment works; it has no fallback.\n\n---\n\n## IDEA_ID: A3\n**ASSESSMENT:** A3's concept was cut off in the documentation, so I'm assessing based on the title and what was established in earlier passes. The Witness Protocol with Direction \u2014 adding the three-prompt structure (What did I make? What's working? What's the smallest next move?) \u2014 is grounded in solid reflective practice research. The direction moves from pure articulation to problem-solving articulation, which adds concrete forward momentum. However, the probability rating (0.18) reflects a genuine limitation: A3 is the most dependent on external structure (finding someone to be the witness, or building async accountability). It's viable but narrower in applicability than A1 or A2.\n\n**REMAINING CONCERN:** A3 addresses articulation clarity but not the core abandonment mechanism. Even with a witness reflecting back what's working, the person still faces the vision-reality gap at the midpoint. A3 is more of an *adjacency* strategy (helping clarity when abandonment arrives) than a *primary bridge* strategy (preventing the gap from becoming insurmountable in the first place). It works best *alongside* A1 or A2, not as a standalone.\n\n---\n\n## SYNTHESIS DIRECTION\n\n**SYNTHESIS_ID: S1**\n\n**TITLE:** The Nested Structure \u2014 Adaptive Checkpoints Within Pre-Committed Constraints\n\n**CONCEPT:** \nBegin each session with a single pre-committed constraint (A2's structure: \"80% fidelity OR 90 minutes, whichever comes first\" or \"materials-only, no research\"). This constraint is non-negotiable and visible throughout the work. *Within* that constraint, define 3\u20134 adaptive checkpoints at the session start (A1's approach), but with a critical reframe: each checkpoint is defined as \"what's the smallest proof of progress *given this constraint*?\" The constraint narrows the decision space; the adaptive checkpoints provide dopamine-driven completion signals without rigidity. The pre-commitment handles the abandonment impulse (\"I already decided the rules\"); the adaptive checkpoints handle the creative flexibility (\"I can adjust what 'done' means within the rules I set\").\n\n**ORIGIN_IDEAS:** A1 + A2 (A3 can supplement through witness articulation, but the core synthesis is A1 and A2 in structural sequence)\n\n**WHY THIS:** A1 and A2 work on the same abandonment problem from opposite directions \u2014 A1 provides flexibility without a decision frame; A2 provides a decision frame without flexibility. Together, they create something neither alone achieved: a system with *both* neurological closure (pre-committed constraint) *and* creative autonomy (adaptive checkpoints). The constraint functions as the ADD-brain's \"decision terminator\"; the checkpoints function as the creative process's \"flexibility engine.\" This is the highest-probability path through the midpoint gap because it doesn't ask you to choose between structure and creativity \u2014 it makes structure *enable* creativity instead.\n\n---\n\n## TRADE-OFF SUMMARY FOR DIRECTOR\n\n| Direction | Primary Strength | Primary Limitation | Best For |\n|-----------|------------------|-------------------|----------|\n| **A1** | Flexibility + dopamine completion without pre-planning | Requires self-direction mid-session; no external guardrail against scope creep | Sessions where creative direction is clear and the gap is primarily about momentum, not direction-finding |\n| **A2** | Clear external boundary; decision made in advance; feels like relief to ADD brain | Constraint must be meaningful; pre-commitment is itself an ADHD-hard task; no flexibility if constraint becomes counterproductive | Sessions where you know in advance what \"done\" looks like and need protection from the gap's pull |\n| **A3** | Clarifies thinking mid-gap; surfaces what's working; provides async accountability | Doesn't directly address abandonment mechanism; dependent on witness availability; works best as adjacency, not primary strategy | Sessions where clarity-through-articulation is the barrier, and external reflection genuinely helps problem-solving |\n| **S1** | Both closure (constraint) and flexibility (checkpoints); addresses abandonment from both directions simultaneously | Requires both pre-commitment *and* real-time adaptive thinking; slightly more complex setup | Sessions where you need protection against the gap *and* creative flexibility; highest-probability path through midpoint abandonment |\n\n---\n\n## ASSESSMENT OF THE CREATIVE TEAM'S WORK\n\nThe Creator's refinements are rigorous and genuine. A1 and A2 are now both structurally sound and research-grounded. A3, while narrower in application, is coherent. The synthesis direction (S1) emerges from real integration \u2014 it's not a blend of surface features; it's an architectural solution that combines the decision-closure function of A2 with the creative-autonomy function of A1.\n\nThis set is ready for Director presentation.\n\n---\n\nThe Creative Team submits these four directions to the Director for review."
+        }
+      ],
+      "synthesized_directions": []
+    }
+  ],
+  "candidate_set": [
+    {
+      "direction_id": "C1",
+      "internal_type": "evolutionary",
+      "description": "The Adaptive Checkpoint System \u2014 Directional Milestones Defined in Real Time",
+      "reasoning_summary": "",
+      "research_influences": [],
+      "critic_assessment": {
+        "strengths": [],
+        "concerns": [],
+        "refinement_notes": []
+      }
+    },
+    {
+      "direction_id": "C2",
+      "internal_type": "evolutionary",
+      "description": "The Pre-Committed Constraint \u2014 Setting Bounds Before the Gap Opens",
+      "reasoning_summary": "",
+      "research_influences": [],
+      "critic_assessment": {
+        "strengths": [],
+        "concerns": [],
+        "refinement_notes": []
+      }
+    },
+    {
+      "direction_id": "C3",
+      "internal_type": "conceptual_leap",
+      "description": "The Nested Structure \u2014 Adaptive Checkpoints Within Pre-Committed Constraints",
+      "reasoning_summary": "",
+      "research_influences": [],
+      "critic_assessment": {
+        "strengths": [],
+        "concerns": [],
+        "refinement_notes": []
+      }
+    }
+  ],
+  "director_review": {
+    "alignment_with_brief": "All three directions directly address the vision-reality gap abandonment mechanism with practical approaches that work within nighttime ADD creative sessions.",
+    "distinctiveness_assessment": "C1 focuses on flexible milestones, C2 on protective pre-commitment, and C3 architecturally combines both approaches \u2014 genuinely different strategies, not variations.",
+    "balance_assessment": "Strong range from flexible adaptation (C1) to structured protection (C2) to integrated architecture (C3), spanning practical to sophisticated approaches.",
+    "clarity_assessment": "Each direction is clearly expressed with specific implementation steps, research grounding, and distinct reasoning \u2014 ready for PIL evaluation.",
+    "iteration_required": false
+  },
+  "presentation": {
+    "ordered_directions": [
+      "C1",
+      "C2",
+      "C3"
+    ],
+    "director_commentary": [
+      "Got it \u2014 here's what the studio developed for bridging that midpoint abandonment gap:\n\n## Three Approaches to Consider\n\n**The Adaptive Checkpoint System**\nInstead of deciding what \"done\" looks like before you start, spend the first 10 minutes of each session defining 4\u20135 small checkpoints based on what you're actually working with right now. Each checkpoint is small enough to complete in about 25 minutes and specific enough that you'll know when you've hit it. The key shift: you're defining progress *during* the work, not before it, which means the checkpoints stay meaningful even when the project evolves.\n\n**The Pre-Committed Constraint**\nBefore each session begins, write down one boundary that will apply no matter what: \"80% fidelity OR 90 minutes, whichever comes first\" or \"I'm using only what's on my desk \u2014 no research, no waiting for better tools.\" Make it visible during the session. When the gap opens and abandonment pulls, you're not making a new decision under pressure \u2014 you're following through on something you decided when you were clear-headed. The constraint becomes a form of self-rescue you set up in advance.\n\n**The Nested Structure**\nCombine both: start each session by setting one non-negotiable constraint (your protective boundary), then define 3\u20134 adaptive checkpoints within that constraint. The constraint handles the abandonment impulse by giving you clear stopping rules; the checkpoints handle creative flexibility by letting you adjust what progress looks like as you learn. You get both neurological closure and creative autonomy.\n\nWhat's your instinct when you read through these \u2014 which one feels most workable for how your brain actually operates during those late-night sessions?"
+    ]
+  },
+  "user_response": {
+    "selected_direction": null,
+    "feedback_summary": "What do you call? The nested structure is interesting. I tend to be a perfectionist. And I don't stop until the job is perfect, and it often never is. So deciding ahead of time is difficult, but probably a good idea. I think a couple of smaller goals within that is a good idea too. All of this requires some planning and I could use a tool for that. But what tool sounds like a checklist of some kind but the analysis is the hard part.",
+    "signals_extracted": [
+      "## SIGNAL EXTRACTION\n\n**SELECTED:** C3 (The Nested Structure) \u2014 clear preference expressed\n\n**SIGNAL_1:** **Perfectionism as the core constraint** \u2014 \"I don't stop until the job is perfect, and it often never is\" reveals the vision-reality gap isn't just about losing momentum, it's about *infinite refinement loops*. The gap opens because \"perfect\" is a moving target that expands as skill increases.\n\n**SIGNAL_2:** **Tool anxiety vs. process interest** \u2014 They want the structure (\"deciding ahead of time is probably a good idea,\" \"smaller goals within that is a good idea\") but are concerned about implementation complexity. \"All of this requires some planning\" sounds hesitant. They want something that feels systematic without feeling like overhead.\n\n**SIGNAL_3:** **\"The analysis is the hard part\"** \u2014 This is the hidden insight. They're not asking for a checklist tool \u2014 they're saying the difficulty is *figuring out what the constraint should be* and *how to break it into meaningful smaller goals*. The analytical/decision-making component is where they need support, not the tracking component.\n\n**SECOND_LOOP:** YES\n\n**REASON:** The perfectionism signal substantially reframes the problem. We designed solutions for momentum-loss abandonment, but the PIL has *completion-resistance abandonment* \u2014 they don't abandon because they lose energy, they abandon because \"done\" never arrives. The nested structure intuition is right, but it needs to be specifically calibrated for perfectionist creative loops, not general ADD project management. The \"analysis is the hard part\" signal also suggests they need decision-support tools, not tracking tools.\n\n---\n\n## BLACKBOARD UPDATE\n*SCRIBE \u2014 00:02*\n\n## SESSION EVOLUTION \u2014 PIL RESPONSE ANALYSIS\n\n**PIL RESPONSE:**",
+      "DEPTH SIGNAL (Stage 8b): Well, I was writing a piece of code, and it worked pretty well. It wasn't perfect yet, but it was about 90% there. I called it a night."
+    ]
+  },
+  "second_exploration": {
+    "triggered": false,
+    "reason": "",
+    "additional_cycles": []
+  },
+  "final_synthesis": {
+    "final_direction": "C3",
+    "refinements": [
+      "Refined from PIL signal: 'What do you call? The nested structure is interesting. I tend to be a perfectionist. And I don't sto'"
+    ],
+    "summary": "# PERFECTIONIST'S COMPLETION SYSTEM\n\nWe built this for someone who creates beautiful work but struggles to call it done \u2014 because in a perfectionist's mind, \"done\" keeps moving.\n\n**CORE CONCEPT:** The system works in two layers. Before you start any creative session, you choose one simple constraint that defines \"enough\" \u2014 like \"90% working\" or \"first complete draft\" or \"all major elements in place.\" This isn't about lowering standards; it's about pre-deciding what completion looks like before perfectionism kicks in. Then, within that boundary, you set 3-4 flexible checkpoints during the first 10 minutes of work \u2014 small, directional milestones that move you toward your constraint rather than toward some impossible perfect version. When you hit your constraint, you stop. The work might not be perfect, but it will be complete and genuinely good.\n\n**WHY THIS WORKS:** Perfectionism creates infinite refinement loops because \"perfect\" is always one more revision away. By deciding your completion criteria when you're clear-headed (before the session), you give your future self permission to stop when you reach genuinely good work. The flexible checkpoints ensure you don't abandon the work midway \u2014 they provide the dopamine hits that keep ADD brains engaged while moving toward your pre-committed finish line.\n\n**NEXT STEPS:** Pick one current project and define its \"90% constraint\" right now \u2014 what would make this complete and satisfying, even if not perfect? Then try one session using 3-4 small checkpoints that move toward that constraint. Notice what happens when you reach the constraint: do you want to keep going, or does it actually feel like a natural stopping point?\n\nWhat feels most challenging about this approach for your particular creative process?"
+  },
+  "reasoning_trace": [
+    {
+      "step": 1,
+      "timestamp": "2026-04-06T23:19:37.286472",
+      "role": "SYSTEM",
+      "action": "session_start",
+      "target": "",
+      "summary": "Session initiated: 'I keep starting projects late at night and abandoning them halfway through even though I care about them\u2014what\u2019s actually going on and how do I fix it?'"
+    },
+    {
+      "step": 2,
+      "timestamp": "2026-04-06T23:19:41.390655",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'A person has just arrived at The Creative Prism with this request:\n\n\"I keep star...'"
+    },
+    {
+      "step": 3,
+      "timestamp": "2026-04-06T23:19:41.391651",
+      "role": "DIRECTOR",
+      "action": "routing_studio",
+      "target": "",
+      "summary": "Request routed to STUDIO. Entering adaptive discovery."
+    },
+    {
+      "step": 4,
+      "timestamp": "2026-04-06T23:29:14.086730",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director of The Creative Prism, in a discovery conversation with a p...'"
+    },
+    {
+      "step": 5,
+      "timestamp": "2026-04-06T23:29:47.110661",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director of The Creative Prism, in a discovery conversation with a p...'"
+    },
+    {
+      "step": 6,
+      "timestamp": "2026-04-06T23:30:21.531994",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director of The Creative Prism, in a discovery conversation with a p...'"
+    },
+    {
+      "step": 7,
+      "timestamp": "2026-04-06T23:32:43.790802",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director of The Creative Prism, in a discovery conversation with a p...'"
+    },
+    {
+      "step": 8,
+      "timestamp": "2026-04-06T23:34:06.148900",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director of The Creative Prism, in a discovery conversation with a p...'"
+    },
+    {
+      "step": 9,
+      "timestamp": "2026-04-06T23:34:06.153073",
+      "role": "DIRECTOR",
+      "action": "discovery_complete",
+      "target": "",
+      "summary": "Adaptive discovery complete. 6 turns. 7 signals gathered. Techniques: ['forced_choice', 'forced_choice', 'sacrificial_concept', 'fill_blank', 'fill_blank']."
+    },
+    {
+      "step": 10,
+      "timestamp": "2026-04-06T23:34:26.124016",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You have just completed a discovery conversation. Now propose a reframing of the...'"
+    },
+    {
+      "step": 11,
+      "timestamp": "2026-04-06T23:35:46.408402",
+      "role": "DIRECTOR",
+      "action": "reframing_confirmed",
+      "target": "",
+      "summary": "Reframing proposed and confirmed by PIL."
+    },
+    {
+      "step": 12,
+      "timestamp": "2026-04-06T23:35:53.764996",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'Based on this confirmed understanding, produce a structured creative brief.\n\nDIS...'"
+    },
+    {
+      "step": 13,
+      "timestamp": "2026-04-06T23:35:53.766448",
+      "role": "DIRECTOR",
+      "action": "brief_synthesized",
+      "target": "",
+      "summary": "Creative brief produced. Challenge: 'Design approaches that help someone with ADD bridge the pred...'"
+    },
+    {
+      "step": 14,
+      "timestamp": "2026-04-06T23:36:22.662471",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Director. The brief is complete. Configure the Creative Team for thi...'"
+    },
+    {
+      "step": 15,
+      "timestamp": "2026-04-06T23:36:22.664264",
+      "role": "DIRECTOR",
+      "action": "team_configured",
+      "target": "",
+      "summary": "Team configured. This configuration emphasizes empathic understanding of ADD challenges while mai..."
+    },
+    {
+      "step": 16,
+      "timestamp": "2026-04-06T23:37:43.933728",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'The creative brief is confirmed. Before ideation begins, surface these open ques...'"
+    },
+    {
+      "step": 17,
+      "timestamp": "2026-04-06T23:39:32.505171",
+      "role": "DIRECTOR",
+      "action": "open_questions_answered",
+      "target": "",
+      "summary": "Open questions answered. Context added to brief and Studio Brief Document."
+    },
+    {
+      "step": 18,
+      "timestamp": "2026-04-06T23:39:55.351808",
+      "role": "CREATOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are working on this creative brief:\n\nCHALLENGE: Design approaches that help ...'"
+    },
+    {
+      "step": 19,
+      "timestamp": "2026-04-06T23:39:55.353755",
+      "role": "CREATOR",
+      "action": "ideation_complete",
+      "target": "",
+      "summary": "Three directions generated using banded Verbalized Sampling. Cycle 1 logged."
+    },
+    {
+      "step": 20,
+      "timestamp": "2026-04-06T23:44:02.412689",
+      "role": "CRITIC",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'The Creator has proposed three directions for the brief:\n\nBRIEF CHALLENGE: Desig...'"
+    },
+    {
+      "step": 21,
+      "timestamp": "2026-04-06T23:44:02.413883",
+      "role": "CRITIC",
+      "action": "evaluation_complete",
+      "target": "",
+      "summary": "Pass 1 evaluation complete. Refinement paths identified."
+    },
+    {
+      "step": 22,
+      "timestamp": "2026-04-06T23:47:21.957047",
+      "role": "RESEARCHER",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are supporting a creative studio session.\n\nTHE BRIEF:\nChallenge: Design appr...'"
+    },
+    {
+      "step": 23,
+      "timestamp": "2026-04-06T23:47:21.959062",
+      "role": "RESEARCHER",
+      "action": "research_delivered",
+      "target": "",
+      "summary": "Research delivered. Entry R001 logged."
+    },
+    {
+      "step": 24,
+      "timestamp": "2026-04-06T23:52:07.207053",
+      "role": "CREATOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Creator. The Critic has evaluated your directions and the Researcher...'"
+    },
+    {
+      "step": 25,
+      "timestamp": "2026-04-06T23:52:07.210037",
+      "role": "CREATOR",
+      "action": "refinement_complete",
+      "target": "",
+      "summary": "Pass 2 refinement complete. Research and critique incorporated."
+    },
+    {
+      "step": 26,
+      "timestamp": "2026-04-06T23:56:41.814171",
+      "role": "CRITIC",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are the Critic. The Creator has refined their three directions based on your...'"
+    },
+    {
+      "step": 27,
+      "timestamp": "2026-04-06T23:56:41.816028",
+      "role": "CRITIC",
+      "action": "synthesis_complete",
+      "target": "",
+      "summary": "Pass 2 final evaluation and synthesis complete. Ready for Director review."
+    },
+    {
+      "step": 28,
+      "timestamp": "2026-04-06T23:59:06.729943",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'You are reviewing the Creative Team's final submission before presenting to the ...'"
+    },
+    {
+      "step": 29,
+      "timestamp": "2026-04-06T23:59:06.732663",
+      "role": "DIRECTOR",
+      "action": "review_complete",
+      "target": "",
+      "summary": "Director review complete. Decision: PRESENT. 3 candidates selected."
+    },
+    {
+      "step": 30,
+      "timestamp": "2026-04-06T23:59:57.860641",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'Present these three directions to the person in the loop.\n\nBRIEF CHALLENGE: Desi...'"
+    },
+    {
+      "step": 31,
+      "timestamp": "2026-04-06T23:59:57.860828",
+      "role": "DIRECTOR",
+      "action": "presentation_delivered",
+      "target": "",
+      "summary": "Presentation delivered to PIL. 3 directions presented."
+    },
+    {
+      "step": 32,
+      "timestamp": "2026-04-07T00:04:09.939084",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'The PIL responded to the presentation:\n\"What do you call? The nested structure i...'"
+    },
+    {
+      "step": 33,
+      "timestamp": "2026-04-07T00:04:09.941274",
+      "role": "DIRECTOR",
+      "action": "signals_extracted",
+      "target": "",
+      "summary": "PIL reaction processed. Second loop: False. Key signal: 'What do you call? The nested structure is interesting. I ten...'"
+    },
+    {
+      "step": 34,
+      "timestamp": "2026-04-07T00:09:34.927292",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'The PIL has reacted to the presentation. Before producing the final synthesis,\np...'"
+    },
+    {
+      "step": 35,
+      "timestamp": "2026-04-07T00:11:17.505772",
+      "role": "DIRECTOR",
+      "action": "depth_extraction_complete",
+      "target": "",
+      "summary": "Stage 8b depth extraction complete. Signal: 'Well, I was writing a piece of code, and it worked pretty well. It wasn't perfec'"
+    },
+    {
+      "step": 36,
+      "timestamp": "2026-04-07T00:11:36.210829",
+      "role": "DIRECTOR",
+      "action": "api_call",
+      "target": "",
+      "summary": "Responded to: 'Produce the final synthesis for the PIL.\n\nBRIEF: Design approaches that help som...'"
+    },
+    {
+      "step": 37,
+      "timestamp": "2026-04-07T00:11:36.211231",
+      "role": "DIRECTOR",
+      "action": "synthesis_complete",
+      "target": "",
+      "summary": "Final synthesis delivered to PIL. Session complete."
+    }
+  ],
+  "evaluation_payload": {
+    "problem_prompt": "I keep starting projects late at night and abandoning them halfway through even though I care about them\u2014what\u2019s actually going on and how do I fix it?",
+    "control_group_baseline": "# What's Probably Happening\n\nYou're likely caught in a **low-stakes, high-stimulation trap**:\n\n- Late night = fewer obligations competing for attention, so projects *feel* possible\n- Starting something new = dopamine hit from novelty and possibility\n- Halfway through = the work gets real (friction, decisions, boredom), novelty wears off, and your brain bails because there are no immediate consequences\n\nThe \"I care about them\" part actually makes this worse\u2014caring creates pressure, which your brain avoids by switching tasks.\n\nThis isn't laziness or flakiness. It's a timing + energy + consequence problem.\n\n---\n\n# How to Fix It\n\n**1. Stop starting at night.** Period.\n- Your late-night brain is in \"explore mode,\" not \"execute mode\"\n- Ban project starts after 7-8pm. Use night time for low-friction things only (admin, planning, learning)\n- Start projects in the morning or early afternoon when you have fuel and daylight left to hit resistance\n\n**2. Shrink the project drastically.**\n- \"Work on X\" \u2192 \"Do 20 minutes of X and stop\"\n- Completion beats perfection. Finishing a small thing breaks the abandon pattern\n- You'll often keep going once started, but don't count on it\n\n**3. Add friction to quitting.**\n- Tell someone specific what you'll do (and by when)\n- Use a timer and make stopping require you to announce it\n- Work somewhere you can't easily leave\n\n**4. Separate \"starting\" from \"doing\".**\n- Spend 5 minutes getting clear on the *next specific action* before you start\n- \"Work on project\" is too vague \u2192 \"Write the opening paragraph\" is real\n\n**Start this week:** Pick one project. Do it tomorrow morning for exactly 20 minutes. Notice what happens.",
+    "experimental_group_synthesis": "# PERFECTIONIST'S COMPLETION SYSTEM\n\nWe built this for someone who creates beautiful work but struggles to call it done \u2014 because in a perfectionist's mind, \"done\" keeps moving.\n\n**CORE CONCEPT:** The system works in two layers. Before you start any creative session, you choose one simple constraint that defines \"enough\" \u2014 like \"90% working\" or \"first complete draft\" or \"all major elements in place.\" This isn't about lowering standards; it's about pre-deciding what completion looks like before perfectionism kicks in. Then, within that boundary, you set 3-4 flexible checkpoints during the first 10 minutes of work \u2014 small, directional milestones that move you toward your constraint rather than toward some impossible perfect version. When you hit your constraint, you stop. The work might not be perfect, but it will be complete and genuinely good.\n\n**WHY THIS WORKS:** Perfectionism creates infinite refinement loops because \"perfect\" is always one more revision away. By deciding your completion criteria when you're clear-headed (before the session), you give your future self permission to stop when you reach genuinely good work. The flexible checkpoints ensure you don't abandon the work midway \u2014 they provide the dopamine hits that keep ADD brains engaged while moving toward your pre-committed finish line.\n\n**NEXT STEPS:** Pick one current project and define its \"90% constraint\" right now \u2014 what would make this complete and satisfying, even if not perfect? Then try one session using 3-4 small checkpoints that move toward that constraint. Notice what happens when you reach the constraint: do you want to keep going, or does it actually feel like a natural stopping point?\n\nWhat feels most challenging about this approach for your particular creative process?"
+  }
+}

@@ -69,6 +69,14 @@ if not _openai_key:
 _anthropic_client = anthropic.Anthropic(api_key=_anthropic_key)
 _openai_client    = OpenAI(api_key=_openai_key)
 
+# -- Session Provider State ----------------------------------------------------
+# Set once per session by the notebook (Cell 2) after routing decision.
+# call_role() reads these when no provider= is passed explicitly.
+# Critic role automatically uses CRITIC_PROVIDER; all others use PRIMARY_PROVIDER.
+
+PRIMARY_PROVIDER = "anthropic"   # overwritten by notebook Cell 2
+CRITIC_PROVIDER  = "openai"      # overwritten by notebook Cell 2
+
 # -- Model Constants -----------------------------------------------------------
 
 ANTHROPIC_DEFAULT  = "claude-haiku-4-5-20251001"
@@ -513,18 +521,30 @@ def _call_openai(system_prompt, user_message, model, max_tokens):
 def call_role(role, user_message, context, blackboard,
               model=ANTHROPIC_DEFAULT, max_tokens=1024,
               trait_profile="", brief_doc="",
-              provider="anthropic"):
+              provider=None):
     """
     Make a single API call as a studio role.
 
-    provider: "anthropic" (default) | "openai"
-    Compiles the system prompt, dispatches to the correct API,
-    logs to the reasoning trace.
+    provider: "anthropic" | "openai" | None (auto-resolved from module state)
 
-    For Critic calls:
-      Pass provider=CRITIC_PROVIDER and model=CRITIC_MODEL.
-      build_prompt() will automatically load critic_gpt.md for openai.
+    If provider is not passed, it is resolved automatically:
+      - role="critic"  → uses module-level CRITIC_PROVIDER
+      - all other roles → uses module-level PRIMARY_PROVIDER
+
+    Both PRIMARY_PROVIDER and CRITIC_PROVIDER are set by the notebook
+    in Cell 2 after the routing decision. This means no call site in the
+    notebook needs to pass provider= explicitly.
+
+    For Critic calls, build_prompt() automatically loads critic_gpt.md
+    when provider resolves to "openai".
     """
+    # Resolve provider from module state if not passed explicitly
+    if provider is None:
+        if role == "critic":
+            provider = CRITIC_PROVIDER
+        else:
+            provider = PRIMARY_PROVIDER
+
     system_prompt = build_prompt(
         role, context,
         trait_profile=trait_profile,
@@ -553,77 +573,183 @@ def call_role(role, user_message, context, blackboard,
 
 def route_session(user_prompt, prompts_dir=PROMPTS_DIR):
     """
-    Classify the session's primary orientation and select models.
+    Classify the session's primary orientation and read the PIL.
+    Two separate calls — orientation scoring and PIL reading are kept apart
+    so the model doesn't deprioritize structured fields in favor of narrative.
+    Orientation label is computed in Python from the adjusted score —
+    never trusted from model output.
 
-    Returns a dict:
-      {
-        "orientation":       "creative" | "strategic" | "balanced",
-        "orientation_score": float (0.0=strategic, 1.0=creative),
-        "primary_provider":  "anthropic" | "openai",
-        "critic_provider":   "openai"    | "anthropic",
-        "director_model":    str,
-        "session_model":     str,
-        "critic_model":      str,
-        "tiebreaker_used":   bool,
-        "tiebreaker_answers": list,
-        "rationale":         str,
-      }
+    Returns a dict with orientation, scores, PIL dimensions, and model constants.
 
     Classification logic:
-      Score ≤ 0.35        → strategic  → Claude primary, GPT critic
-      Score 0.36–0.64     → balanced   → tiebreaker questions decide
-      Score ≥ 0.65        → creative   → GPT primary, Claude critic
+      Adjusted score ≤ 0.35  → strategic  → Claude primary, GPT critic
+      Adjusted score 0.36–0.64 → balanced → tiebreaker questions decide
+      Adjusted score ≥ 0.65  → creative   → GPT primary, Claude critic
 
-    Uses cheapest available model on each provider for the classification call.
-    Tries Anthropic first; falls back to OpenAI if unavailable.
+    Bias rules applied in Python:
+      domain_fluency = "low"                          → score - 0.15
+      relational_proximity = "personal", score > 0.50 → score - 0.10
+      cognitive_style = "analytical", score > 0.50    → score - 0.08
     """
 
-    classification_prompt = f"""You are classifying a creative problem to determine
-the optimal cognitive orientation for solving it.
+    # ── Call 1: Orientation scoring ────────────────────────────────────────────
+    orientation_prompt = f"""You are scoring a problem's cognitive orientation.
 
 PROBLEM:
 \"\"\"{user_prompt}\"\"\"
 
-Analyze this problem and return ONLY a JSON object with no preamble or markdown.
+Score from 0.0 to 1.0:
+0.0 = Purely strategic (operational viability, execution, compliance,
+      feasibility, scaling, cost, risk — "how do we make this work?")
+1.0 = Purely creative (identity, positioning, meaning, differentiation,
+      brand, experience design, behavioral insight — "what should this
+      become and why will people care?")
 
-ORIENTATION SCORING:
-Score from 0.0 to 1.0 on this scale:
-0.0 = Purely strategic (operational viability, execution, compliance, feasibility,
-      stakeholder management, systems design, scaling, cost, risk — answers the
-      question "how do we make this work?")
-1.0 = Purely creative (identity, positioning, meaning, differentiation, brand,
-      experience design, behavioral insight, cultural resonance — answers the
-      question "what should this become and why will people care?")
+Most problems score 0.2–0.8. Do NOT use governed domains as a signal
+toward strategic — those are handled separately regardless.
+Classify based on what kind of thinking the PIL most needs.
 
-Most problems will score between 0.2 and 0.8. A score of 0.5 is genuinely rare.
-
-IMPORTANT: Do NOT use the presence of regulatory or governed domains as a signal
-toward strategic. Those are handled by the system regardless of orientation.
-Classify based on what kind of thinking the PIL most needs from the studio.
-
-Return this JSON exactly:
+Return ONLY this JSON:
 {{
   "orientation_score": <float 0.0-1.0>,
-  "orientation": "<creative|strategic|balanced>",
-  "rationale": "<one sentence explaining the classification>"
-}}
+  "rationale": "<one sentence>"
+}}"""
 
-orientation must be:
-  "creative"  if score >= 0.65
-  "strategic" if score <= 0.35
-  "balanced"  if score is between 0.36 and 0.64"""
+    # ── Call 2: PIL reading ────────────────────────────────────────────────────
+    pil_prompt = f"""You are reading the person who wrote this request to
+understand how they think and what they need.
 
-    tiebreaker_prompt = f"""You previously classified this problem as balanced
-(score between 0.36 and 0.64). Answer three tiebreaker questions to determine
-whether the primary model should be creative-oriented (GPT) or strategic-oriented
-(Claude).
+REQUEST:
+\"\"\"{user_prompt}\"\"\"
+
+Assess three dimensions from the language itself — vocabulary, sentence
+structure, domain terminology, emotional register, what was named vs omitted.
+
+DOMAIN FLUENCY — familiarity with the domain of their own problem:
+  "high"       — accurate domain vocabulary, aware of real constraints
+  "developing" — general familiarity, some vocabulary, gaps visible
+  "low"        — outsider or beginner language, may not know the gaps
+
+Note: domain fluency ≠ general intelligence. A skilled professional outside
+their domain may show low fluency. Read domain signals only.
+
+COGNITIVE STYLE — how this person naturally thinks:
+  "analytical" — structured, criteria-driven, sequential, data-first
+  "intuitive"  — feeling-first, metaphor-heavy, associative, example-driven
+  "mixed"      — both present
+
+RELATIONAL PROXIMITY — emotional closeness to this problem:
+  "personal"     — identity-adjacent, personal stakes, family/life references
+  "professional" — work problem, organizational stakes, some distance
+  "mixed"        — both dimensions present
+
+Return ONLY this JSON:
+{{
+  "domain_fluency": "<high|developing|low>",
+  "cognitive_style": "<analytical|intuitive|mixed>",
+  "relational_proximity": "<personal|professional|mixed>",
+  "pil_read": "<one sentence: who this person appears to be and what they need>"
+}}"""
+
+    result = {
+        "orientation":          "strategic",
+        "orientation_score":    0.5,
+        "primary_provider":     "anthropic",
+        "critic_provider":      "openai",
+        "director_model":       ANTHROPIC_DIRECTOR,
+        "session_model":        ANTHROPIC_DEFAULT,
+        "critic_model":         OPENAI_DEFAULT,
+        "tiebreaker_used":      False,
+        "tiebreaker_answers":   [],
+        "rationale":            "",
+        "pil_read":             "",
+        "domain_fluency":       "",
+        "cognitive_style":      "",
+        "relational_proximity": "",
+    }
+
+    def _parse_json(raw):
+        clean = raw.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+        return json.loads(clean.strip())
+
+    # ── Step 1: Orientation score ──────────────────────────────────────────────
+    try:
+        raw1   = _call_anthropic(
+            system_prompt="You are a concise JSON classifier. Return only valid JSON.",
+            user_message=orientation_prompt,
+            model=ROUTING_MODEL_ANTHROPIC,
+            max_tokens=150
+        )
+        p1     = _parse_json(raw1)
+        score  = float(p1.get("orientation_score", 0.5))
+        result["rationale"] = p1.get("rationale", "")
+    except Exception as e:
+        print(f"  ⚠ Orientation scoring failed: {e}")
+        print(f"  ⚠ Defaulting to strategic (Claude primary)")
+        result["rationale"] = "Classification failed — defaulting to strategic."
+        return result
+
+    # ── Step 2: PIL reading ────────────────────────────────────────────────────
+    try:
+        raw2   = _call_anthropic(
+            system_prompt="You are a concise JSON classifier. Return only valid JSON.",
+            user_message=pil_prompt,
+            model=ROUTING_MODEL_ANTHROPIC,
+            max_tokens=200
+        )
+        p2     = _parse_json(raw2)
+        domain_fluency  = p2.get("domain_fluency", "")
+        cognitive_style = p2.get("cognitive_style", "")
+        relational_prox = p2.get("relational_proximity", "")
+        pil_read        = p2.get("pil_read", "")
+
+        result["domain_fluency"]       = domain_fluency
+        result["cognitive_style"]      = cognitive_style
+        result["relational_proximity"] = relational_prox
+        result["pil_read"]             = pil_read
+    except Exception as e:
+        print(f"  ⚠ PIL reading failed: {e} — continuing without PIL dimensions")
+        domain_fluency  = ""
+        cognitive_style = ""
+        relational_prox = ""
+
+    # ── Step 3: Apply bias rules in Python ────────────────────────────────────
+    adjusted = score
+    if domain_fluency == "low":
+        adjusted -= 0.15
+    if relational_prox == "personal" and score > 0.50:
+        adjusted -= 0.10
+    if cognitive_style == "analytical" and score > 0.50:
+        adjusted -= 0.08
+    adjusted = max(0.0, min(1.0, adjusted))  # clamp to [0, 1]
+
+    # ── Step 4: Compute orientation label deterministically ───────────────────
+    # Never trust the model's label — compute from the number.
+    if adjusted <= 0.35:
+        orientation = "strategic"
+    elif adjusted >= 0.65:
+        orientation = "creative"
+    else:
+        orientation = "balanced"
+
+    result["orientation_score"] = round(adjusted, 2)
+    result["orientation"]       = orientation
+
+    # ── Step 5: Tiebreaker if balanced ────────────────────────────────────────
+    if orientation == "balanced":
+        tiebreaker_prompt = f"""Answer three questions about this problem to
+decide whether it needs creative-oriented or strategic-oriented primary thinking.
 
 PROBLEM:
 \"\"\"{user_prompt}\"\"\"
 
-Answer each question with either "creative" or "strategic".
+Answer each with "creative" or "strategic".
 
-Return ONLY a JSON object:
+Return ONLY this JSON:
 {{
   "q1": "<creative|strategic>",
   "q1_reasoning": "<one phrase>",
@@ -634,103 +760,51 @@ Return ONLY a JSON object:
   "tiebreaker_winner": "<creative|strategic>"
 }}
 
-Questions:
 Q1: What does the PIL most need to leave with — a direction to believe in,
     or a path they can execute?
     (direction to believe in = creative, path to execute = strategic)
 
-Q2: What is the bigger risk for this problem — that the output is boring
-    and generic, or that it is impractical and unworkable?
+Q2: What is the bigger risk — that the output is boring and generic, or
+    that it is impractical and unworkable?
     (boring/generic = creative, impractical/unworkable = strategic)
 
-Q3: Does this problem have a known answer that needs reframing, or an
-    unknown answer that needs discovering?
-    (known answer needing reframe = creative, unknown needing discovery = strategic)
+Q3: Does this problem have a known answer needing reframe, or an unknown
+    answer needing discovery?
+    (known needing reframe = creative, unknown needing discovery = strategic)
 
-tiebreaker_winner: whichever orientation appears more often in q1, q2, q3."""
+tiebreaker_winner: whichever answer appears most in q1, q2, q3."""
 
-    result = {
-        "orientation":        "balanced",
-        "orientation_score":  0.5,
-        "primary_provider":   "anthropic",
-        "critic_provider":    "openai",
-        "director_model":     ANTHROPIC_DIRECTOR,
-        "session_model":      ANTHROPIC_DEFAULT,
-        "critic_model":       OPENAI_DEFAULT,
-        "tiebreaker_used":    False,
-        "tiebreaker_answers": [],
-        "rationale":          "",
-    }
-
-    # -- Step 1: Initial classification (use Anthropic classifier) -------------
-    try:
-        raw = _call_anthropic(
-            system_prompt="You are a concise JSON classifier. Return only valid JSON.",
-            user_message=classification_prompt,
-            model=ROUTING_MODEL_ANTHROPIC,
-            max_tokens=300
-        )
-        clean  = raw.strip()
-        if clean.startswith("```"):
-            clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
-        parsed = json.loads(clean.strip())
-
-        score       = float(parsed.get("orientation_score", 0.5))
-        orientation = parsed.get("orientation", "balanced")
-        rationale   = parsed.get("rationale", "")
-
-        result["orientation_score"] = score
-        result["orientation"]       = orientation
-        result["rationale"]         = rationale
-
-    except Exception as e:
-        print(f"  ⚠ Classification call failed: {e}")
-        print(f"  ⚠ Defaulting to strategic (Claude primary)")
-        result["rationale"] = "Classification failed — defaulting to strategic."
-        return result
-
-    # -- Step 2: Tiebreaker if balanced ----------------------------------------
-    if orientation == "balanced":
         try:
-            raw2   = _call_anthropic(
+            raw3    = _call_anthropic(
                 system_prompt="You are a concise JSON classifier. Return only valid JSON.",
                 user_message=tiebreaker_prompt,
                 model=ROUTING_MODEL_ANTHROPIC,
-                max_tokens=300
+                max_tokens=200
             )
-            clean2 = raw2.strip()
-            if clean2.startswith("```"):
-                clean2 = clean2.split("```")[1]
-                if clean2.startswith("json"):
-                    clean2 = clean2[4:]
-            parsed2 = json.loads(clean2.strip())
-
-            winner   = parsed2.get("tiebreaker_winner", "strategic")
-            answers  = [
-                f"Q1: {parsed2.get('q1','')} — {parsed2.get('q1_reasoning','')}",
-                f"Q2: {parsed2.get('q2','')} — {parsed2.get('q2_reasoning','')}",
-                f"Q3: {parsed2.get('q3','')} — {parsed2.get('q3_reasoning','')}",
+            p3      = _parse_json(raw3)
+            winner  = p3.get("tiebreaker_winner", "strategic")
+            answers = [
+                f"Q1: {p3.get('q1','')} — {p3.get('q1_reasoning','')}",
+                f"Q2: {p3.get('q2','')} — {p3.get('q2_reasoning','')}",
+                f"Q3: {p3.get('q3','')} — {p3.get('q3_reasoning','')}",
             ]
             result["tiebreaker_used"]    = True
             result["tiebreaker_answers"] = answers
-            result["orientation"]        = winner
-
+            orientation = winner  # tiebreaker overrides balanced
+            result["orientation"] = orientation
         except Exception as e:
-            print(f"  ⚠ Tiebreaker call failed: {e}")
-            print(f"  ⚠ Defaulting balanced → strategic (Claude primary)")
-            result["orientation"] = "strategic"
+            print(f"  ⚠ Tiebreaker failed: {e} — defaulting to strategic")
+            orientation = "strategic"
+            result["orientation"] = orientation
 
-    # -- Step 3: Set provider and model constants ------------------------------
-    if result["orientation"] == "creative":
+    # ── Step 6: Set provider and model constants ───────────────────────────────
+    if orientation == "creative":
         result["primary_provider"] = "openai"
         result["critic_provider"]  = "anthropic"
         result["director_model"]   = OPENAI_DIRECTOR
         result["session_model"]    = OPENAI_DEFAULT
         result["critic_model"]     = ANTHROPIC_DEFAULT
     else:
-        # strategic or balanced-resolved-to-strategic
         result["primary_provider"] = "anthropic"
         result["critic_provider"]  = "openai"
         result["director_model"]   = ANTHROPIC_DIRECTOR
