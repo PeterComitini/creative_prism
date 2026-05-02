@@ -571,41 +571,298 @@ If the PIL explicitly requests more information on a direction, research finding
 
 ---
 
-## KNOWN ISSUES
+---
 
-| Issue | Severity | Status | Notes |
-|---|---|---|---|
-| `idea_space` not yet populated | Low | Noted | Schema field exists, Phase 1 doesn't write to it yet |
-| Researcher autonomous trigger not wired | Low | Noted | Prompt describes behavior, code doesn't implement trigger |
-| Scribe LLM call not implemented | Low | Noted | scribe_log() is mechanical Python |
-| Bug 4 (duplicate brief entries) | Low | Diagnosed | Audit update_brief_doc calls in Director Review |
-| Director closing question hangs | Low | Noted | Stage 9 asks a question but no Cell 13 collects it — v4.0 scope |
-| Forced choice dominance | Low | ADDRESSED v1.6 | Prohibition explicit; planning required |
-| Director summary blank | Medium | FIXED v3.1 | Cell 12 now includes call with read_brief_doc(session_id) |
-| Stage 8c → 9 gap | High | FIXED v3.1 | Cell 10c now presents to PIL before synthesis |
-| Branding gap in startup briefs | Medium | ADDRESSED v1.5 | Functional Domain Inventory catches it |
-| Assumption checks not numbered | Low | FIXED v1.8 | Numbered list format in Assumption Validation |
-| Critic recommending direction to Director | Medium | FIXED v1.3 | Role boundary enforcement added to critic.md |
-| "Invitation to Go Deeper" not honored | High | FIXED v1.8 | Director must deliver requested info before proceeding |
-| Researcher hallucination on named citations | Medium | Noted | Web search tool = proper fix; deferred post-run. Also manifests as fabricated precision statistics. |
-| Surprise Audit HIGH band only | Low | Noted | Should cover all three bands — v4.0 scope |
-| Post-session research document | Low | Noted | format_research_summary() + Cell 12 integration — v4.0 scope |
-| Routing classifier accuracy unvalidated | Low | Noted | Will surface errors during 30-prompt hybrid run; thresholds and tiebreakers subject to refinement |
+### [2026-04-16] Hybrid Engine — Critical Bug Fixes + Classifier Upgrade
+
+**Status:** COMPLETE
+
+**Bug 1 — Routing classifier: PIL fields empty**
+Root cause: single combined JSON call caused model to deprioritize structured PIL fields in favor of rationale narrative. Fix: split into two separate API calls — orientation scoring call (150 tokens) and PIL reading call (200 tokens). Each produces a focused JSON with no competing concerns.
+
+**Bug 2 — Orientation label wrong (0.49 labeled "strategic")**
+Root cause: model's own orientation label was being trusted from JSON output. Fix: orientation label now computed deterministically in Python from the adjusted score. Model label field is never read.
+
+**Routing classifier upgraded from Haiku to Sonnet:**
+Haiku misclassified Petrina scenario (0.72 creative when strategic grounding was needed). Sonnet reads domain fluency, operator experience signals, and relational proximity more reliably. Cost impact: negligible (two short calls per session).
+
+**PIL reading dimensions added to classifier and blackboard:**
+Three new dimensions read from initial prompt language:
+- Domain fluency: high / developing / low
+- Cognitive style: analytical / intuitive / mixed
+- Relational proximity: personal / professional / mixed
+- pil_read: one-sentence portrait of who the person appears to be
+
+Bias rules applied in Python (not trusted to model):
+- domain_fluency = "low" → score -0.15
+- relational_proximity = "personal" AND score > 0.50 → score -0.10
+- cognitive_style = "analytical" AND score > 0.50 → score -0.08
+
+**Director reading the person — director.md addition:**
+New section inserted before "Plan your discovery before you begin." Pre-discovery behavioral instruction to read PIL language for the three dimensions before planning first turn. Shapes technique selection and tone throughout discovery. Invisible to PIL.
+
+**Plain prose instruction — director.md TONE AND VOICE addition:**
+No markdown formatting in any PIL-facing message. No bold, italics, bullets, or headers. Forced choice written as "is this X or Y?" Fill-in-the-blank as "more like ___ than ___." GPT models default to markdown; explicit prohibition required.
 
 ---
 
-## PHASE ROADMAP
+### [2026-04-16] Cell 10 + Cell 10b — UX Contract Fixes
+
+**Status:** COMPLETE
+
+**Cell 10 — Director acknowledgment added:**
+After signal extraction, Director makes one short call confirming the PIL's selection in natural language before Cell 10b fires. Uses DIRECTOR_FAST_MODEL. PIL now knows they were heard before the next step.
+
+Root cause of previous failure: Cell 10 captured PIL reaction, processed it silently, printed raw JSON, and ended. PIL had no confirmation selection was understood before Cell 10b fired. Depth question arrived feeling disconnected.
+
+**Cell 10b — Signal quality gate added:**
+Before asking depth question, checks: `_has_selection` (direction chosen), `_has_signals` (at least one signal extracted), `_reaction_is_rich` (≥12 words). If all three pass, Cell 10b passes through without probing — prints confirmation and moves on.
+
+Root cause of previous failure: Cell 10b always fired unconditionally regardless of signal quality. A 24-word reaction with a clear direction selection still triggered a depth question, producing unnecessary friction and occasionally capturing frustrated meta-responses as creative signal.
+
+---
+
+### [2026-04-16] Tiered Director Model System
+
+**Status:** COMPLETE — implemented via `patch_director_tiered.py` (run and deleted)
+
+**Design:** Director calls split into two tiers based on whether the PIL sees the output.
+
+DIRECTOR_MODEL (Sonnet) — 10 PIL-facing calls:
+Discovery turns, reframing, brief synthesis, team configuration, presentation, final synthesis.
+
+DIRECTOR_FAST_MODEL — 13 internal/admin calls:
+Routing classification, signal extraction, assumption check, candidate review, acknowledgment, depth question, session summary, second loop classification, and others.
+
+DIRECTOR_FAST_MODEL follows PRIMARY_PROVIDER — if GPT is primary, fast model is GPT-mini. If Claude is primary, fast model is Haiku. Scribe always Anthropic.
+
+**Cost impact:** Approximately 40-50% reduction in Director costs with no discernible quality loss on PIL-facing output. Validated across two sessions.
+
+---
+
+### [2026-04-16] Researcher Three-Tier Epistemic System
+
+**Status:** COMPLETE — deployed to prompts_hybrid/researcher.md
+
+**Problem:** Researcher was fabricating named studies, named institutions, and precision statistics (87% repeat rates, 67% conversion rates, named universities) because the prompt demanded specificity without permitting honest uncertainty.
+
+**Fix:** Three-tier output system replacing single citation requirement:
+
+TIER 1 — CITED FINDING: source the Researcher is genuinely confident exists and is accurately described. No statistics unless number is real and confident.
+
+TIER 2 — PATTERN: well-established general principle or tendency where no specific source can be confidently named. Pattern language is honest and useful. No statistics, no named institutions, no invented cases.
+
+TIER 3 — EPISTEMIC FLAG: when Creator, Critic, or Director has asserted a statistic or named case the Researcher cannot verify. Flags the claim explicitly. Does not confirm fabricated claims with different fabricated sources.
+
+Fabrication prohibition is now explicit and primary in both the standards section and WHAT YOU NEVER DO list. "A fabricated source is worse than no source."
+
+---
+
+### [2026-04-16] Session Analysis — Hybrid Architecture Validation
+
+**Sessions reviewed:** `session_20260416_122603_11e02ced`, `session_20260416_153843_ca084b3b`
+
+**Run 1 — Petrina/chicken parm (Claude primary, GPT Critic):**
+Best complete session produced across all Petrina runs. Brief pressure point: "How do you commercialize something already perfect in intimate form." Sauce direction emerged — most original direction produced on this problem across all runs. Cell 10b gate worked correctly (passed through on 24-word reaction). PIL: "one of the most genuinely thorough engagements on this problem."
+
+**Run 2 — Farmers market sandwich, tiered model:**
+Three distinct directions. PIL selected synthesis direction. Little discernible quality difference from full Sonnet run. Tiered model architecture validated.
+
+---
+
+### [2026-04-17] Session Analysis — GPT Primary + Failing Sessions
+
+**Sessions reviewed:**
+- `session_20260417_110913_a481bbf4` — Kitchen chair design (GPT primary)
+- `session_20260417_151411_a5e83c01` — Pilates team management (Claude primary hybrid)
+- `session_20260412_093446_96402b44` — Pilates (Claude only, for comparison)
+
+**Kitchen chair finding:** First successful complete GPT-primary creative session. Problem scored creative (0.62 after bias). GPT-primary discovery was competent on this problem type. Chair design produced directions with genuine conceptual distinctiveness (Breakfast Chair as Instrument, A3). GPT primary on pure creative problems is earning its place.
+
+**Pilates comparison finding:** Claude-only produced more original directions, warmer synthesis, and better human register. Hybrid's brief was marginally sharper and signal count higher (14 vs 8 signals). Verdict: Claude primary better for strategic and human-centered problems. GPT primary justified for genuinely creative problems only.
+
+---
+
+### [2026-04-23] System Failure Analysis — Discovery Pattern Diagnosis
+
+**Sessions reviewed:** `session_20260423_001044_e7fafe01` (logistics platform), `session_20260423_004523_6fd6a1e7` (defense tech IPO)
+
+Both sessions showed the same failure pattern:
+- Director conducted discovery that circled the problem rather than moving through it
+- Questions confirmed what the Director already had rather than opening new territory
+- Reframing closely resembled the initial prompt — discovery did not move the problem
+- Synthesis handed work back to the PIL as research tasks and process steps rather than producing a position
+
+**Root cause diagnosis (from combined Claude + GPT + Gemini analysis):**
+
+The Director optimizes for conversational plausibility, not informational gain. It selects the most likely next good question, not the question that changes the state of the problem.
+
+The Director prompt describes what the Director should be and value. It does not give the Director a mechanism for evaluating whether its own questions are earning their place before asking them.
+
+The `director.md` at 900+ lines degrades attention on behavioral instructions buried in the middle. Identity instructions at the top are followed; behavioral prohibitions in the middle are overridden by model defaults under conversational pressure.
+
+VS is applied in the Creator (Step 0) but not in discovery. Without a discovery Step 0, the Director defaults to the mode of its training distribution — asking the questions a good consultant would ask, not the questions that move the problem to an unexpected position.
+
+**GPT diagnosis:** "The system has no internal test for whether a question changed the state of the problem." "Optimizing for conversational plausibility, not informational gain."
+
+**ChatGPT synthesis document key finding:** No role owns the moment of decision. System produces exploration, structure, refinement, documentation — but not commitment.
+
+---
+
+### [2026-04-24] Layer 1 Fix — Commitment Protocol
+
+**Status:** COMPLETE — deployed to director.md and prompts_hybrid/director.md
+
+**Problem:** Synthesis producing "organized options" not positions. Director presenting menu of strong directions rather than committing to one. Synthesis on complex sessions handed work back to PIL as process steps rather than solving the problem.
+
+**Fix:** FINAL SYNTHESIS section rewritten with mandatory commitment protocol:
+
+Before writing any synthesis, Director completes three-step internal check:
+1. Which direction is the strongest answer to the brief's actual pressure point? Not the safest. The one that moves the problem furthest toward an original creative solution.
+2. Why does it win? One sentence, grounded in the brief.
+3. Why do the alternatives not win? Name the specific thing each cannot do that the chosen direction can.
+
+Synthesis leads with the studio's recommendation. Secondary options are clearly subordinate.
+
+Test: read only the first paragraph — if it contains a clear, defensible position the PIL could not have written themselves, it passes. If it contains organized options or deferred decisions, it is a menu not a synthesis.
+
+Prohibitions: no handing work back as research tasks, no presenting all directions as equally valid after PIL has chosen, no "it depends" or equivalent deferral language.
+
+---
+
+### [2026-04-24] v5.0 Design Sprint — Three-Layer Development Plan
+
+**Status:** Designed, not yet built. Continue v4.0 test run before implementing.
+
+**Source documents filed to project folder:**
+- `creative_prism_v5_development_brief.md` — master spec
+- `creative_prism_persona_library_v1.docx` — Studio Specialist library
+- `creative_prism_rewrite_brief_v5.docx` — architectural diagnosis and rewrite spec
+
+---
+
+**Layer 2 — Implement after test run:**
+
+*Deterministic second loop trigger:*
+Current trigger is interpretive/discretionary. Hard conditions to be defined: selected_dir empty, frustration signals + thin depth response, all directions rejected. Code change in Cell 10.
+
+*Pre-brief interrogation round:*
+New cell between Cell 4 and Cell 5. After discovery, before brief is written: Creator challenges Director framing ("what would this enable that doesn't exist yet?"), Critic challenges it ("what assumption is this hiding?"). Director synthesizes friction into revised brief. Two Haiku calls (~$0.02). Addresses briefs that closely resemble initial prompts.
+
+*Semantic drift measurement:*
+Before brief is finalized, compute cosine similarity between initial prompt and proposed challenge field. If similarity > 0.85, Director receives a flag to identify the assumption preventing movement. One embeddings call in engine_hybrid.py. Objective measurement of whether discovery worked.
+
+---
+
+**Layer 3 — Full prompt rewrite:**
+
+*VS applied to discovery question generation:*
+Before each discovery question, Director names the obvious next question, rejects it, then tests information gain: would the answer materially change the framing or direction? If no, generate another. Full four-step gate: name obvious → reject → generate alternative → test information gain.
+
+*Prompt compression targets:*
+Director 180 lines, Creator 120, Critic 100, Researcher 100. Extraction toolkit moved out of director.md entirely to director_extraction_games.md as reference only.
+
+*Identity rewrite principle:*
+Every value statement paired with a behavioral test. "Be surprising" replaced with "before delivering a reframing, ask: could this have been written using only the initial prompt? If yes — invalid, generate a new one."
+
+---
+
+**Studio Specialist Persona System (Layer 3 addition):**
+
+Eight theatrical personas introduced by Director as Master of Ceremonies during discovery. One mandatory per session. Maximum two per session. Personas live in director_extraction_games.md — loaded only on the specific Specialist call.
+
+Interaction flow: Director intro (2-3 sentences) → Specialist question (4 sentences max) → PIL answers → Director return (closes frame + translates + opens next move). Director's exit line always names what the answer revealed.
+
+The eight:
+1. The Surrealist Chef — sensory translation, Category Transplant
+2. The Mad Scientist — boundary violation, Sacrificial Concept / Impostor ID
+3. The Ghost of Future Failures — time-shifted pressure, Private Obituary
+4. The Relentless Five-Year-Old — root cause drill, recursive why ("Thank you. Go have a snack.")
+5. The Documentary Filmmaker — observational realism, The Real Scene
+6. The Prosecutor — assumption demolition, Hidden Dependency
+7. The Intergalactic Tourist — first principles, Domain Strip
+8. The Game Show Host — structured play, Mad Libs indirect profiling
+
+Game Show Host mechanism: Director reads initial prompt for signal dimensions, constructs five to seven numbered fill-in-the-blank prompts approaching those dimensions obliquely. PIL fills instinctively. Director builds one-sentence portrait from answers. PIL's reaction to portrait is the signal.
+
+---
+
+### [2026-04-24] Medium Article — Part V Draft
+
+**Status:** DRAFT — `creative_prism_medium_part5_draft.docx` filed to project folder
+
+Chapter title: "The Machine That Questions Itself"
+
+Covers: the waiting problem, Anthropic AI Fluency Index research (Discernment at the production layer), VS and the discovery wait, the iteration architecture, the fun problem and what's still missing. Ends on open problem rather than conclusion.
+
+Key concept introduced: **Discernment at the production layer** — the system questions its own work before anything reaches the PIL. The PIL's questioning becomes a check on the system's self-questioning, not the primary quality gate. This is what distinguishes the Creative Prism from a prompt interface.
+
+---
+
+
+
+
+## ARCHITECTURE DECISIONS — NEW ENTRIES (add to existing table)
+
+| Decision | Rationale |
+|---|---|
+| Two-call routing classifier (v4.0 fix) | Single combined call caused model to deprioritize PIL reading fields; split into orientation scoring + PIL reading calls |
+| Orientation label computed in Python (v4.0 fix) | Model's own label cannot be trusted; deterministic computation from adjusted score |
+| Sonnet as routing classifier (v4.0) | Haiku misclassified strategic problems as creative; Sonnet reads domain fluency and operator experience signals |
+| PIL reading dimensions in classifier (v4.0) | Domain fluency, cognitive style, relational proximity extracted from initial prompt language; bias rules applied in Python |
+| Reading the Person section in director.md (v4.0) | Pre-discovery instruction to read PIL language for three dimensions before planning first turn |
+| Plain prose prohibition in director.md (v4.0) | GPT models default to markdown formatting; explicit prohibition required for PIL-facing messages |
+| Cell 10 Director acknowledgment (v4.0) | PIL must hear confirmation of selection before Cell 10b fires; prevents disconnected depth questions |
+| Cell 10b signal quality gate (v4.0) | Depth question skipped when selection is clear, signal exists, and reaction ≥12 words; prevents unnecessary probing |
+| Tiered Director model (v4.0) | DIRECTOR_MODEL (Sonnet) for PIL-facing; DIRECTOR_FAST_MODEL for internal/admin; ~40-50% cost reduction, no quality loss |
+| DIRECTOR_FAST_MODEL follows PRIMARY_PROVIDER (v4.0) | Fast model is provider-specific (GPT-mini or Haiku); never hardcoded to Anthropic |
+| Researcher three-tier epistemic system (v4.0) | Fabrication was caused by prompt demanding specificity without permitting honest uncertainty; CITED FINDING / PATTERN / EPISTEMIC FLAG |
+| Commitment protocol in FINAL SYNTHESIS (v4.0) | System was producing organized options not positions; Director must select strongest direction and defend it before writing |
+| VS gap in discovery identified (v5.0 design) | Discovery Step 0 missing — Director has no mechanism equivalent to Creator's Step 0; defaults to mode of training distribution |
+| Pre-brief interrogation round (v5.0 design) | Director brief formation alone produces briefs that resemble initial prompts; Creator + Critic challenge before brief is written |
+| Semantic drift measurement (v5.0 design) | Objective measurement of whether discovery moved the problem; cosine similarity between initial prompt and brief challenge field |
+| Studio Specialist Persona System (v5.0 design) | Eight theatrical personas deployed by Director as MC; addresses fun problem; one mandatory per session |
+| Discernment at production layer (v5.0 concept) | System questions its own work before PIL sees anything; PIL questioning is a check, not the primary quality gate |
+
+## KNOWN ISSUES — UPDATES
+
+| Issue | Severity | Status | Notes |
+|---|---|---|---|
+| `idea_space` not yet populated | Low | Noted | Schema field exists, not written to |
+| Researcher autonomous trigger not wired | Low | Noted | Prompt describes behavior, code doesn't implement trigger |
+| Scribe LLM call not implemented | Low | Noted | scribe_log() is mechanical Python |
+| Bug 4 (duplicate brief entries) | Low | Diagnosed | Audit update_brief_doc calls in Director Review |
+| Director closing question hangs | Low | Noted | Stage 9 asks a question but no Cell 13 collects it — v5.0 scope |
+| Researcher hallucination on named citations + statistics | Medium | MITIGATED v4.0 | Three-tier epistemic system deployed; web search tool = permanent fix; deferred |
+| Surprise Audit HIGH band only | Low | Noted | Should cover all three bands — v5.0 scope |
+| Discovery fails to move the problem (circular questions) | High | PARTIAL FIX v4.0 | Commitment protocol fixes synthesis layer; VS discovery gate and pre-brief interrogation round = v5.0 Layer 2/3 fixes |
+| Synthesis produces organized options not positions | High | FIXED v4.0 | Commitment protocol deployed to director.md |
+| Second loop trigger interpretive not deterministic | Medium | Noted | Hard trigger conditions to be defined in v5.0 Layer 2 |
+| Routing classifier: PIL fields empty | Medium | FIXED v4.0 | Two-call classifier; PIL fields now populated in session JSON |
+| Orientation label wrong from model output | Medium | FIXED v4.0 | Label now computed deterministically in Python |
+| Director using markdown in PIL messages | Medium | FIXED v4.0 | Plain prose prohibition added to director.md TONE AND VOICE |
+| Cell 10 no acknowledgment after selection | High | FIXED v4.0 | Director acknowledgment call added |
+| Cell 10b fires unconditionally | High | FIXED v4.0 | Signal quality gate added |
+
+## PHASE ROADMAP — UPDATED
 
 ```
 Phase 1  Early Experiments        Complete
            Socratic Spiral, Prism, HITL, temperature sweeps
 
-Phase 2  Full Studio Workflow     Active — v4.0 current
-           Engine v2.1 (Claude) · engine_openai.py v1.0 · engine_hybrid.py v1.0
-           Prompts v3.2 — director.md v1.9, critic.md v1.3, critic_gpt.md v1.0
-           Notebook v4.0 — Hybrid: Cell 2b routing, cross-model Critic (Cells 6, 7c)
-           30-prompt experimental run: reset, C-01 pending on v4.0 hybrid
-           Parallel: v3.2 Claude-only run available for comparison
+Phase 2  Full Studio Workflow     Active — v4.0 Hybrid current
+           engine_hybrid.py v1.0 (two-call classifier, PIL reading, tiered Director model)
+           Prompts: director.md (v1.9 + v4.0 additions), creator.md v1.2, critic.md v1.3,
+                    critic_gpt.md v1.0, researcher.md (v1.3 + three-tier system)
+           Notebook v4.0 — Cell 10 acknowledgment, Cell 10b gate, tiered Director calls
+           30-prompt experimental run: in progress (8 of 30 complete)
+           Recommended next 8 runs before v5.0 build: C-33, C-34, C-36 (creative/GPT primary),
+             C-17, C-24, C-27 (conventional spread), C-32 (benchmark), S-14 (PIL reading validation)
+
+Phase 2.5  v5.0 Design Sprint     COMPLETE — not yet built
+           Layer 1: Commitment protocol deployed ✓
+           Layer 2: Deterministic second loop, pre-brief interrogation, semantic drift — ready to build
+           Layer 3: Full prompt rewrite, VS in discovery, persona library — after test data
 
 Phase 3  Visualization            Active (parallel track)
            Galaxy/flower (Sketch 21) — frozen
@@ -614,7 +871,6 @@ Phase 3  Visualization            Active (parallel track)
            Replay instrument MVP for creativeprism.ai
 ```
 
----
 
 ## REFERENCES
 

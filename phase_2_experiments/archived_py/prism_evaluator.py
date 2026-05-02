@@ -1,13 +1,13 @@
+import glob
+import json
 import os
 import re
-import json
-import glob
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 import google.generativeai as genai
+from dotenv import find_dotenv, load_dotenv
 from openai import OpenAI
-from dotenv import load_dotenv, find_dotenv
 
 # =======================================================================
 # THE CREATIVE PRISM: EVALUATION ENGINE
@@ -30,8 +30,8 @@ class PrismEvaluator:
 
     def __init__(self):
         # -- Directory structure -------------------------------------------
-        self.root_dir   = Path(__file__).parent.resolve()
-        self.data_dir   = self.root_dir / "sessions"
+        self.root_dir = Path(__file__).parent.resolve()
+        self.data_dir = self.root_dir / "sessions_hybrid"
         self.outputs_dir = self.root_dir / "outputs"
         self._ensure_directories()
 
@@ -42,27 +42,27 @@ class PrismEvaluator:
         gemini_key = os.environ.get("GEMINI_API_KEY")
         if not gemini_key:
             raise ValueError(
-                "GEMINI_API_KEY not found in environment. "
-                "Add it to your .env file.")
+                "GEMINI_API_KEY not found in environment. " "Add it to your .env file."
+            )
         genai.configure(api_key=gemini_key)
         self.gemini = genai.GenerativeModel(
-            model_name="gemini-1.5-pro",
+            model_name="gemini-2.5-flash",
             generation_config={
                 "temperature": 0.0,
                 "response_mime_type": "application/json",
-            }
+            },
         )
 
         # -- OpenAI client -------------------------------------------------
         openai_key = os.environ.get("OPENAI_API_KEY")
         if not openai_key:
             raise ValueError(
-                "OPENAI_API_KEY not found in environment. "
-                "Add it to your .env file.")
+                "OPENAI_API_KEY not found in environment. " "Add it to your .env file."
+            )
         self.openai = OpenAI(api_key=openai_key)
 
         print("-- EVALUATOR READY -----------------------------------------")
-        print("  Gemini 1.5 Pro   : configured")
+        print("  Gemini 2.5 Flash : configured")
         print("  GPT-4o           : configured")
         print("  Sessions dir     : sessions/")
         print("  Outputs dir      : outputs/")
@@ -74,8 +74,7 @@ class PrismEvaluator:
 
     # -- Evaluation Prompt -------------------------------------------------
 
-    def _get_evaluation_prompt(self, problem_prompt: str,
-                                response_text: str) -> str:
+    def _get_evaluation_prompt(self, problem_prompt: str, response_text: str) -> str:
         """
         Shared evaluation prompt used by both Gemini and GPT-4o.
         Identical text ensures comparable scoring conditions.
@@ -176,15 +175,20 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
         # 1. Brief Specificity Delta ----------------------------------
         user_prompt = log_data.get("user_prompt", "")
         brief = log_data.get("creative_brief", {})
-        brief_text = " ".join(filter(None, [
-            brief.get("challenge", ""),
-            brief.get("context", ""),
-            brief.get("desired_result", ""),
-            " ".join(brief.get("constraints", [])),
-            " ".join(brief.get("research_insights", []))
-        ]))
+        brief_text = " ".join(
+            filter(
+                None,
+                [
+                    brief.get("challenge", ""),
+                    brief.get("context", ""),
+                    brief.get("desired_result", ""),
+                    " ".join(brief.get("constraints", [])),
+                    " ".join(brief.get("research_insights", [])),
+                ],
+            )
+        )
         prompt_words = max(len(user_prompt.split()), 1)
-        brief_words  = len(brief_text.split())
+        brief_words = len(brief_text.split())
         delta = round(brief_words / prompt_words, 2)
 
         metrics["brief_specificity_delta"] = delta
@@ -203,7 +207,7 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                 words2 = set(proposals[-1].get("raw_response", "").lower().split())
                 if words1 and words2:
                     shared = len(words1 & words2)
-                    total  = len(words1 | words2)
+                    total = len(words1 | words2)
                     novelty_scores.append(
                         round(1 - (shared / total), 3) if total > 0 else 0.0
                     )
@@ -223,20 +227,21 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
         # 3. Researcher Citation Rate --------------------------------
         citation_pattern = re.compile(
-            r'https?://'                                              # URLs
-            r'|\b(according to|cited in|source:|per |reported by)\b' # Attribution
-            r'|\b[A-Z][a-z]+ (Foundation|Institute|Association|'
-            r'University|Bureau|Agency|Council|Federation)\b'         # Named orgs
-            r'|\b\d+(\.\d+)?%'                                        # Percentages
-            r'|\$\d+'                                                  # Dollar amounts
-            r'|\b(study|research|report|survey|data) '
-            r'(shows?|finds?|suggests?|indicates?)\b',                # Research language
-            re.IGNORECASE
+            r"https?://"  # URLs
+            r"|\b(according to|cited in|source:|per |reported by)\b"  # Attribution
+            r"|\b[A-Z][a-z]+ (Foundation|Institute|Association|"
+            r"University|Bureau|Agency|Council|Federation)\b"  # Named orgs
+            r"|\b\d+(\.\d+)?%"  # Percentages
+            r"|\$\d+"  # Dollar amounts
+            r"|\b(study|research|report|survey|data) "
+            r"(shows?|finds?|suggests?|indicates?)\b",  # Research language
+            re.IGNORECASE,
         )
         research_entries = log_data.get("research_trace", [])
         if research_entries:
             cited = sum(
-                1 for entry in research_entries
+                1
+                for entry in research_entries
                 if citation_pattern.search(entry.get("summary", ""))
             )
             rate = round(cited / len(research_entries), 2)
@@ -256,15 +261,13 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
     # -- Individual Evaluator Calls ----------------------------------------
 
-    def _score_with_gemini(self, problem_prompt: str,
-                           response_text: str) -> dict:
+    def _score_with_gemini(self, problem_prompt: str, response_text: str) -> dict:
         """Score one response with Gemini 1.5 Pro. Returns parsed score dict."""
         prompt = self._get_evaluation_prompt(problem_prompt, response_text)
         response = self.gemini.generate_content(prompt)
         return json.loads(response.text)
 
-    def _score_with_openai(self, problem_prompt: str,
-                           response_text: str) -> dict:
+    def _score_with_openai(self, problem_prompt: str, response_text: str) -> dict:
         """Score one response with GPT-4o. Returns parsed score dict."""
         prompt = self._get_evaluation_prompt(problem_prompt, response_text)
         response = self.openai.chat.completions.create(
@@ -278,17 +281,16 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                         "You are an evaluation system. Return only valid JSON "
                         "matching the schema specified in the user message. "
                         "No preamble, no markdown fences."
-                    )
+                    ),
                 },
-                {"role": "user", "content": prompt}
-            ]
+                {"role": "user", "content": prompt},
+            ],
         )
         return json.loads(response.choices[0].message.content)
 
     # -- Agreement Calculation ---------------------------------------------
 
-    def _calculate_agreement(self, gemini_scores: dict,
-                              openai_scores: dict) -> dict:
+    def _calculate_agreement(self, gemini_scores: dict, openai_scores: dict) -> dict:
         """
         Compute per-dimension agreement between Gemini and GPT-4o.
         Agreement threshold: abs(score_a - score_b) <= 1 point.
@@ -303,12 +305,12 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
         for dim in dimensions:
             g_score = gemini_scores[dim]["score"]
             o_score = openai_scores[dim]["score"]
-            agrees  = abs(g_score - o_score) <= 1
+            agrees = abs(g_score - o_score) <= 1
             agreement[dim] = {
                 "gemini_score": g_score,
                 "openai_score": o_score,
-                "delta":        abs(g_score - o_score),
-                "agrees":       agrees
+                "delta": abs(g_score - o_score),
+                "agrees": agrees,
             }
             if agrees:
                 agreed_count += 1
@@ -323,8 +325,7 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
     # -- Composite Score Calculation ---------------------------------------
 
-    def _calculate_composites(self, gemini_scores: dict,
-                               openai_scores: dict) -> dict:
+    def _calculate_composites(self, gemini_scores: dict, openai_scores: dict) -> dict:
         """
         Average Gemini and GPT-4o scores per dimension.
         The composite is the authoritative score used for delta calculation.
@@ -338,8 +339,9 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
     # -- Delta Calculation -------------------------------------------------
 
-    def _calculate_deltas(self, baseline_composites: dict,
-                           prism_composites: dict) -> dict:
+    def _calculate_deltas(
+        self, baseline_composites: dict, prism_composites: dict
+    ) -> dict:
         """
         Calculate per-dimension and overall improvement deltas.
         Uses composite scores (average of both evaluators).
@@ -347,25 +349,30 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
         """
         deltas = {}
         total_baseline = 0.0
-        total_prism    = 0.0
+        total_prism = 0.0
 
         for dim in baseline_composites.keys():
             b = baseline_composites[dim]["composite_score"]
             p = prism_composites[dim]["composite_score"]
             deltas[f"{dim}_delta"] = round(p - b, 2)
             total_baseline += b
-            total_prism    += p
+            total_prism += p
 
-        deltas["total_baseline_score"]      = round(total_baseline, 2)
-        deltas["total_prism_score"]         = round(total_prism, 2)
+        deltas["total_baseline_score"] = round(total_baseline, 2)
+        deltas["total_prism_score"] = round(total_prism, 2)
         deltas["overall_improvement_delta"] = round(total_prism - total_baseline, 2)
         return deltas
 
     # -- Single Run Evaluation ---------------------------------------------
 
-    def _evaluate_run(self, run_id: str, problem_prompt: str,
-                      baseline_text: str, prism_text: str,
-                      tier1_metrics: dict):
+    def _evaluate_run(
+        self,
+        run_id: str,
+        problem_prompt: str,
+        baseline_text: str,
+        prism_text: str,
+        tier1_metrics: dict,
+    ):
         """
         Evaluate one session run.
         Scores both baseline and Prism outputs with both evaluators.
@@ -375,13 +382,13 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
         print(f"\n--- Evaluating Run ID: {run_id} ---")
 
         results = {
-            "run_id":         run_id,
-            "timestamp":      datetime.now().isoformat(),
+            "run_id": run_id,
+            "timestamp": datetime.now().isoformat(),
             "problem_prompt": problem_prompt,
-            "tier1_metrics":  tier1_metrics,
-            "evaluations":    {},
+            "tier1_metrics": tier1_metrics,
+            "evaluations": {},
             "inter_evaluator_agreement": {},
-            "metrics":        {}
+            "metrics": {},
         }
 
         # -- Score baseline ------------------------------------------------
@@ -392,11 +399,11 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
         results["evaluations"]["baseline"] = {
             "gemini": baseline_gemini,
-            "openai": baseline_openai
+            "openai": baseline_openai,
         }
-        results["inter_evaluator_agreement"]["baseline"] = \
-            self._calculate_agreement(
-                baseline_gemini["scores"], baseline_openai["scores"])
+        results["inter_evaluator_agreement"]["baseline"] = self._calculate_agreement(
+            baseline_gemini["scores"], baseline_openai["scores"]
+        )
 
         # -- Score Prism synthesis -----------------------------------------
         print("  Scoring Creative Prism — Gemini...")
@@ -406,26 +413,31 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
         results["evaluations"]["creative_prism"] = {
             "gemini": prism_gemini,
-            "openai": prism_openai
+            "openai": prism_openai,
         }
-        results["inter_evaluator_agreement"]["creative_prism"] = \
-            self._calculate_agreement(
-                prism_gemini["scores"], prism_openai["scores"])
+        results["inter_evaluator_agreement"]["creative_prism"] = (
+            self._calculate_agreement(prism_gemini["scores"], prism_openai["scores"])
+        )
 
         # -- Composites and deltas ----------------------------------------
         baseline_composites = self._calculate_composites(
-            baseline_gemini["scores"], baseline_openai["scores"])
-        prism_composites    = self._calculate_composites(
-            prism_gemini["scores"], prism_openai["scores"])
+            baseline_gemini["scores"], baseline_openai["scores"]
+        )
+        prism_composites = self._calculate_composites(
+            prism_gemini["scores"], prism_openai["scores"]
+        )
 
         results["metrics"] = self._calculate_deltas(
-            baseline_composites, prism_composites)
+            baseline_composites, prism_composites
+        )
         results["metrics"]["baseline_composites"] = baseline_composites
-        results["metrics"]["prism_composites"]    = prism_composites
+        results["metrics"]["prism_composites"] = prism_composites
 
         # -- Agreement summary --------------------------------------------
         b_rate = results["inter_evaluator_agreement"]["baseline"]["agreement_rate"]
-        p_rate = results["inter_evaluator_agreement"]["creative_prism"]["agreement_rate"]
+        p_rate = results["inter_evaluator_agreement"]["creative_prism"][
+            "agreement_rate"
+        ]
         overall_delta = results["metrics"]["overall_improvement_delta"]
 
         print(f"  Baseline agreement rate   : {b_rate}")
@@ -455,7 +467,7 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
 
         print(f"Found {len(log_files)} session file(s). Beginning evaluation...")
         processed = 0
-        skipped   = 0
+        skipped = 0
 
         for file_path in sorted(log_files):
             filename = Path(file_path).name
@@ -465,8 +477,10 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                     log_data = json.load(f)
 
                 # Check for evaluation_payload
-                if "evaluation_payload" not in log_data or \
-                        not log_data["evaluation_payload"]:
+                if (
+                    "evaluation_payload" not in log_data
+                    or not log_data["evaluation_payload"]
+                ):
                     print(f"  SKIP {filename}: missing evaluation_payload")
                     skipped += 1
                     continue
@@ -477,7 +491,7 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                 required_fields = [
                     "problem_prompt",
                     "control_group_baseline",
-                    "experimental_group_synthesis"
+                    "experimental_group_synthesis",
                 ]
                 missing = [f for f in required_fields if not payload.get(f, "").strip()]
                 if missing:
@@ -485,10 +499,8 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                     skipped += 1
                     continue
 
-                run_id = log_data.get(
-                    "session_metadata", {}).get(
-                    "session_id",
-                    f"run_{int(datetime.now().timestamp())}"
+                run_id = log_data.get("session_metadata", {}).get(
+                    "session_id", f"run_{int(datetime.now().timestamp())}"
                 )[:8]
 
                 # Skip if already evaluated
@@ -502,11 +514,11 @@ Return strict JSON matching this exact schema — no preamble, no markdown:
                 tier1 = self._compute_tier1_metrics(log_data)
 
                 self._evaluate_run(
-                    run_id        = run_id,
-                    problem_prompt = payload["problem_prompt"],
-                    baseline_text  = payload["control_group_baseline"],
-                    prism_text     = payload["experimental_group_synthesis"],
-                    tier1_metrics  = tier1
+                    run_id=run_id,
+                    problem_prompt=payload["problem_prompt"],
+                    baseline_text=payload["control_group_baseline"],
+                    prism_text=payload["experimental_group_synthesis"],
+                    tier1_metrics=tier1,
                 )
                 processed += 1
 

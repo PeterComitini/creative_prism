@@ -86,3 +86,10 @@ env/
 *.swp
 *.swo
 phase_3_visualization/
+phase_2_experiments/working_changes/
+phase_2_experiments/scenario_prompts/
+phase_2_experiments/cps_v5_working/
+phase_2_experiments/outputs/
+phase_2_experiments/scenario_prompts/
+phase_2_experiments/cps_v5_working/
+phase_2_experiments/outputs/
