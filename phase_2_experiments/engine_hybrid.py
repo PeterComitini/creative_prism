@@ -42,11 +42,19 @@
 #   )
 
 import os
+import re
 import csv
 import json
 import uuid
 from pathlib import Path
 from datetime import datetime
+
+try:
+    import numpy as np
+    from sklearn.decomposition import PCA
+    _VIZ_DEPS = True
+except ImportError:
+    _VIZ_DEPS = False
 
 from dotenv import load_dotenv, find_dotenv
 import anthropic
@@ -94,6 +102,61 @@ PROMPTS_DIR  = Path(__file__).parent / "prompts_hybrid"
 SESSIONS_DIR = Path(__file__).parent / "sessions_hybrid"
 MATRIX_PATH  = Path(__file__).parent / "persona_traits_matrix_v2.csv"
 
+# v5.0 — Domain lens reference for Critic context block assembly
+DOMAIN_LENSES = {
+    "BRANDING": (
+        "BRANDING: Does this direction have distinctive brand logic, or does it "
+        "describe a category move anyone could make? Is the identity claim "
+        "authentic or aspirational without grounding?"
+    ),
+    "OPERATIONS": (
+        "OPERATIONS: Is this executable at the PIL's actual scale and capacity? "
+        "Does it require capabilities not established in the brief? "
+        "What breaks first under real conditions?"
+    ),
+    "REGULATORY": (
+        "REGULATORY: Are there compliance implications that would block or "
+        "constrain this direction? Flag but do not provide legal conclusions. "
+        "Note when specialist engagement is required."
+    ),
+    "FINANCIAL": (
+        "FINANCIAL: Is the financial logic sound? Are revenue and cost assumptions "
+        "grounded in the Researcher's evidence? Flag unsupported assumptions. "
+        "Is there a clear path to viability?"
+    ),
+    "CX": (
+        "CX: Does this meaningfully change how the customer or user experiences "
+        "the product or service — or only in a stated way? Is the proposed "
+        "experience change realistic given this PIL's context?"
+    ),
+    "POSITIONING": (
+        "POSITIONING: Is the competitive differentiation genuine and durable? "
+        "Will it be replicated quickly? Does it create real distance from "
+        "alternatives or describe a position competitors already occupy?"
+    ),
+    "TECHNOLOGY": (
+        "TECHNOLOGY: Is this technically feasible at the scale and timeline implied? "
+        "Does it require infrastructure, platform, or build capability not "
+        "established in the brief? Flag when specialist assessment is required."
+    ),
+    "HUMAN_PROF": (
+        "HUMAN/PROFESSIONAL: Do the organizational dynamics support this direction? "
+        "Does it account for institutional resistance, team capacity, or professional "
+        "relationship constraints? Who in the organization would block this and why?"
+    ),
+    "HUMAN_PERSONAL": (
+        "HUMAN/PERSONAL: Does this direction account for the relational and "
+        "psychological consequences for the PIL personally? Does it require a version "
+        "of the PIL that may not exist yet? What does it cost them beyond resources?"
+    ),
+    "BEHAVIORAL": (
+        "BEHAVIORAL [always active]: Is this direction actually livable or executable "
+        "for this specific person? Does it ask too much, too fast? Does it underestimate "
+        "resistance — internal or external? Is it grounded in how people actually "
+        "behave, not how they ideally would?"
+    ),
+}
+
 
 # -- Blackboard ----------------------------------------------------------------
 
@@ -118,6 +181,8 @@ def create_blackboard(user_prompt, system_version="hybrid-1.0",
         "routing": {
             "orientation":        "",   # "creative" | "strategic" | "balanced"
             "orientation_score":  0.0,  # 0.0 (strategic) → 1.0 (creative)
+            "is_visual":          False, # DEFINITIVE: set by Director tag in Cell 16
+            "is_visual_hint":     False, # HINT only: keyword scan in Cell 7
             "primary_provider":   primary_provider,
             "critic_provider":    "",
             "tiebreaker_used":    False,
@@ -177,7 +242,44 @@ def create_blackboard(user_prompt, system_version="hybrid-1.0",
             "summary":         ""
         },
         "reasoning_trace":    [],
-        "evaluation_payload": {}
+        "evaluation_payload": {},
+        # v5.0 additions
+        "session_slug":       "",
+        "domain_context":     {},
+        "domain_inventory": {
+            "primary":      "",
+            "flagged":      [],
+            "missing":      [],
+            "absent":       [],
+            "domain_count": 0
+        },
+        "blind_spots":        [],
+        "colophon_extended":  False,
+        "pil_rating":         None,
+        "document_path":      "",
+        # v5.0 — visual prompt output (triggered when problem is visually-weighted)
+        "visual_prompts": {
+            "is_visual":       False,  # set by Director tag in Cell 16
+            "midjourney":      "",     # compressed evocative prompt for Midjourney v7
+            "gpt_image":       "",     # detailed structured prompt for GPT Image API
+            "generated":       False,  # True once Director has produced both prompts
+            "mini_discovery":  {}      # answers from Cell 51b conversation (mode="on" only)
+        },
+        # v5.0 Phase 3 — visualization data
+        "visualization_data": {
+            "anchor_embedding":   None,   # 1536-dim vector of user prompt
+            "anchor_text":        "",     # the user prompt verbatim
+            "turn_embeddings":    [],     # [{turn_index, role, text, vector, distance_from_anchor}]
+            "pil_portrait": {
+                "turns":              [],  # [{turn_index, text, spontaneous, certainty_score, new_vocab_count}]
+                "vocabulary_timeline": [] # new terms introduced per PIL turn
+            },
+            "clarity_signals":    [],     # [{turn_index, signal_type, magnitude}]
+            "idea_arcs":          [],     # [{arc_id, origin_turn, terminus_turn, origin_pos, terminus_pos, depth, role, pil_engagement}]
+            "semantic_clusters":  [],     # [{cluster_id, center, member_turns, peak_density, clarity_achieved}]
+            "reduced_3d":         None,   # PCA-reduced coordinates, generated at session end
+            "viz_ready":          False   # True once reduce_to_3d has run
+        }
     }
 
 
@@ -194,6 +296,232 @@ def scribe_log(blackboard, role, action, summary, target=""):
         "target":    target,
         "summary":   summary
     })
+
+
+# -- v5.0 Session Slug --------------------------------------------------------
+
+def generate_session_slug(prompt):
+    """
+    Generate a short human-readable session identifier.
+    Format: YYYYMMDD_first_three_content_words
+    Example: 20260501_chicken_parm_stand
+
+    Skips stopwords so the slug captures meaningful content,
+    not filler words like "I", "am", "thinking", "of".
+    """
+    _STOPWORDS = {
+        "i", "im", "me", "my", "we", "our", "you", "your",
+        "a", "an", "the", "and", "or", "but", "so", "yet",
+        "am", "is", "are", "was", "were", "be", "been", "being",
+        "have", "has", "had", "do", "does", "did", "will", "would",
+        "can", "could", "should", "may", "might", "must", "shall",
+        "to", "of", "in", "on", "at", "for", "with", "about",
+        "from", "up", "out", "if", "as", "by", "into", "through",
+        "thinking", "looking", "trying", "want", "need", "like",
+        "help", "know", "think", "feel", "get", "make", "give",
+        "how", "what", "when", "where", "who", "why", "that", "this",
+        "it", "its", "there", "here", "been", "some", "any",
+    }
+    date = datetime.now().strftime("%Y%m%d")
+    words = re.sub(r"[^a-zA-Z0-9 ]", "", prompt).lower().split()
+    content_words = [w for w in words if w.isalpha() and w not in _STOPWORDS]
+    slug_words = content_words[:3] if content_words else ["session"]
+    slug = "_".join(slug_words)
+    return f"{date}_{slug}"
+
+
+# -- v5.0 Domain Inventory -----------------------------------------------------
+
+def scan_domain_inventory(user_prompt):
+    """
+    Scan the initial prompt against nine functional domains.
+    Returns a domain_inventory dict with primary, flagged, missing, absent,
+    and domain_count fields.
+
+    Nine domains: BRANDING, OPERATIONS, REGULATORY, FINANCIAL, CX,
+    POSITIONING, TECHNOLOGY, HUMAN_PROF, HUMAN_PERSONAL.
+    BEHAVIORAL is a permanent overlay — not inventoried, always applied.
+
+    Uses ANTHROPIC_DEFAULT (Haiku) — fast, cheap, runs in Cell 2b.
+    Enriched later in Cell 5 from discovery content on the blackboard.
+    """
+
+    inventory_prompt = f"""You are reading a problem statement to identify which functional
+domains are active, missing, or absent.
+
+PROBLEM:
+\"\"\"{user_prompt}\"\"\"
+
+Nine functional domains:
+  BRANDING      — identity, name, voice, perception, how the world sees it
+  OPERATIONS    — process, logistics, execution, capacity, workflow
+  REGULATORY    — compliance, legal constraints, permits, rules, standards
+  FINANCIAL     — revenue, cost, pricing, viability, funding, unit economics
+  CX            — customer experience, service design, human interaction
+  POSITIONING   — competitive landscape, differentiation, market placement
+  TECHNOLOGY    — technical feasibility, platform, infrastructure, build complexity
+  HUMAN_PROF    — organizational dynamics, team capacity, professional relationships,
+                  institutional politics
+  HUMAN_PERSONAL — individual psychology, personal relationships, emotional stakes,
+                  relational consequences of the decision
+
+Definitions:
+  primary  — the single domain the problem most clearly operates in
+  flagged  — domains actively present in the problem statement
+  missing  — domains NOT mentioned but likely relevant given the primary domain
+             and problem type (the PIL may not know these gaps exist)
+  absent   — domains genuinely not applicable to this problem
+
+Return ONLY this JSON (use exact domain names from the list above):
+{{
+  "primary": "<single domain name>",
+  "flagged": ["<domain>", ...],
+  "missing": ["<domain>", ...],
+  "absent":  ["<domain>", ...],
+  "rationale": "<one sentence on what kind of problem this is>"
+}}"""
+
+    try:
+        response = _anthropic_client.messages.create(
+            model=ANTHROPIC_DEFAULT,
+            max_tokens=400,
+            messages=[{"role": "user", "content": inventory_prompt}]
+        )
+        raw = response.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        data = json.loads(raw.strip())
+
+        flagged = data.get("flagged", [])
+        return {
+            "primary":      data.get("primary", ""),
+            "flagged":      flagged,
+            "missing":      data.get("missing", []),
+            "absent":       data.get("absent", []),
+            "domain_count": len(flagged),
+            "rationale":    data.get("rationale", "")
+        }
+    except Exception as e:
+        print(f"  ⚠ Domain inventory scan failed: {e}")
+        return {
+            "primary": "", "flagged": [], "missing": [],
+            "absent": [], "domain_count": 0, "rationale": ""
+        }
+
+
+def enrich_domain_inventory(blackboard):
+    """
+    Enrich the domain inventory from discovery content already on the blackboard.
+    Called in Cell 5 (brief assembly) — no additional API call.
+    Reads discovery insights and adds any newly surfaced domains to flagged.
+    """
+    inventory = blackboard.get("domain_inventory", {})
+    discovery = blackboard.get("discovery", {})
+
+    # Collect all discovery text for a quick keyword scan
+    discovery_text = " ".join([
+        discovery.get("orientation_summary", ""),
+        " ".join(discovery.get("context_insights", [])),
+        discovery.get("desired_outcome", ""),
+    ]).lower()
+
+    # Keyword signals per domain — fast heuristic, no API call
+    domain_signals = {
+        "FINANCIAL":     ["cost", "revenue", "price", "budget", "money", "fund",
+                          "profit", "loss", "invest", "cash"],
+        "REGULATORY":    ["compliance", "legal", "permit", "regulation", "law",
+                          "license", "govern", "policy", "rule"],
+        "OPERATIONS":    ["process", "workflow", "logistics", "capacity", "scale",
+                          "execute", "operate", "manage", "system"],
+        "TECHNOLOGY":    ["tech", "platform", "software", "build", "api", "data",
+                          "infra", "code", "digital", "ai"],
+        "HUMAN_PROF":    ["team", "staff", "org", "politics", "stakeholder",
+                          "manager", "culture", "hire", "talent"],
+        "HUMAN_PERSONAL":["feel", "family", "personal", "relationship", "fear",
+                          "anxiety", "identity", "values", "life"],
+    }
+
+    currently_flagged = set(inventory.get("flagged", []))
+    currently_missing = set(inventory.get("missing", []))
+    newly_surfaced = []
+
+    for domain, signals in domain_signals.items():
+        if domain not in currently_flagged:
+            if any(sig in discovery_text for sig in signals):
+                newly_surfaced.append(domain)
+
+    if newly_surfaced:
+        updated_flagged = list(currently_flagged) + newly_surfaced
+        # Remove from missing if now flagged
+        updated_missing = [d for d in currently_missing if d not in newly_surfaced]
+        inventory["flagged"] = updated_flagged
+        inventory["missing"] = updated_missing
+        inventory["domain_count"] = len(updated_flagged)
+        blackboard["domain_inventory"] = inventory
+
+    return blackboard
+
+
+# -- v5.0 Critic Domain Lens Context Block ------------------------------------
+
+def build_critic_context_block(domain_inventory, pil_reading):
+    """
+    Assemble the domain lens context block for Critic injection.
+    Injected as system context in Cells 6b and 7c.
+
+    Includes lenses for all flagged domains + BEHAVIORAL (always active).
+    PIL reading used to calibrate register and behavioral lens priority.
+    """
+    flagged = domain_inventory.get("flagged", [])
+    missing = domain_inventory.get("missing", [])
+    primary = domain_inventory.get("primary", "")
+    relational = pil_reading.get("relational_proximity", "professional")
+
+    # Build active lenses — flagged domains + behavioral always last
+    active_lenses = []
+    for domain in flagged:
+        if domain in DOMAIN_LENSES:
+            active_lenses.append(DOMAIN_LENSES[domain])
+    active_lenses.append(DOMAIN_LENSES["BEHAVIORAL"])
+
+    # Missing domain note
+    missing_note = ""
+    if missing:
+        missing_note = (
+            f"\nMissing dimensions (not yet surfaced — flag if relevant): "
+            f"{', '.join(missing)}"
+        )
+
+    # Register calibration
+    if relational == "personal":
+        register_note = (
+            "PIL context: personal/relational register. "
+            "Prioritize BEHAVIORAL lens. Domain lenses are secondary — "
+            "apply only where clearly relevant."
+        )
+    else:
+        register_note = (
+            f"PIL context: {relational} register. "
+            "Apply all active domain lenses with full rigor."
+        )
+
+    block = f"""── DOMAIN LENS CONTEXT (v5.0) ─────────────────────────────────────
+Apply these lenses IN ADDITION to the Surprise Audit — not instead of it.
+
+Primary domain: {primary}
+Active dimensions: {', '.join(flagged) if flagged else 'general'}
+{missing_note}
+
+Lenses to apply to each direction:
+
+{chr(10).join(active_lenses)}
+
+{register_note}
+────────────────────────────────────────────────────────────────────"""
+
+    return block
 
 
 # -- Stage Validation ----------------------------------------------------------
@@ -236,16 +564,29 @@ def validate_stage(blackboard, stage_name):
 
 # -- Studio Brief Document -----------------------------------------------------
 
-def create_brief_doc(session_id, user_prompt, sessions_dir=None):
-    """Create a new Studio Brief Document for a session."""
+def create_brief_doc(session_id, user_prompt, sessions_dir=None,
+                     session_slug=None):
+    """
+    Create the Studio Brief Document — shared working memory for the session.
+    Named using session_slug (YYYYMMDD_HHMMSS_topic) for human readability,
+    consistent with the JSON and Scribe output filenames.
+    Falls back to brief_{session_id} if slug not provided.
+    """
     if sessions_dir is None:
         sessions_dir = SESSIONS_DIR
     os.makedirs(sessions_dir, exist_ok=True)
-    path    = Path(sessions_dir) / f"brief_{session_id}.md"
-    content = (
+
+    if session_slug:
+        path = Path(sessions_dir) / f"{session_slug}_studio.md"
+        display_id = session_slug
+    else:
+        path = Path(sessions_dir) / f"brief_{session_id}.md"
+        display_id = session_id
+
+    content_brief = (
         f"# STUDIO BRIEF DOCUMENT\n"
         f"## The Creative Prism — Hybrid\n"
-        f"**Session:** {session_id}\n"
+        f"**Session:** {display_id}\n"
         f"**Started:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
         f"---\n\n"
         f"## SESSION\n\n"
@@ -254,19 +595,36 @@ def create_brief_doc(session_id, user_prompt, sessions_dir=None):
         f"*This document is the shared working memory of the studio session.\n"
         f"Every role reads this document before acting.*\n\n"
     )
-    path.write_text(content, encoding="utf-8")
+    path.write_text(content_brief, encoding="utf-8")
     return path
-
-
 def update_brief_doc(session_id, role, section_title, content,
-                     sessions_dir=None):
-    """Append a new section to the Studio Brief Document."""
+                     sessions_dir=None, session_slug=None):
+    """
+    Append a new section to the Studio Brief Document.
+    Resolves path by slug first, falls back to brief_{session_id}.
+    """
     if sessions_dir is None:
         sessions_dir = SESSIONS_DIR
-    path = Path(sessions_dir) / f"brief_{session_id}.md"
+
+    # Try slug-based path first, then legacy path
+    if session_slug:
+        path = Path(sessions_dir) / f"{session_slug}_studio.md"
+    else:
+        path = Path(sessions_dir) / f"brief_{session_id}.md"
+
+    # Fallback: search for any brief matching session_id prefix
     if not path.exists():
-        raise FileNotFoundError(
-            f"Brief document not found for session {session_id}.")
+        candidates = list(Path(sessions_dir).glob(f"*{session_id[:8]}*studio.md"))
+        if candidates:
+            path = candidates[0]
+        else:
+            legacy = Path(sessions_dir) / f"brief_{session_id}.md"
+            if legacy.exists():
+                path = legacy
+            else:
+                raise FileNotFoundError(
+                    f"Brief document not found for session {session_id}.")
+
     timestamp = datetime.now().strftime('%H:%M')
     addition  = (f"\n---\n\n## {section_title}\n"
                  f"*{role} — {timestamp}*\n\n{content}\n")
@@ -274,11 +632,22 @@ def update_brief_doc(session_id, role, section_title, content,
         f.write(addition)
 
 
-def read_brief_doc(session_id, max_chars=12000, sessions_dir=None):
+def read_brief_doc(session_id, max_chars=12000, sessions_dir=None, session_slug=None):
     """Read the Studio Brief Document, loading only the most recent max_chars."""
     if sessions_dir is None:
         sessions_dir = SESSIONS_DIR
-    path = Path(sessions_dir) / f"brief_{session_id}.md"
+    # Three-tier lookup: slug first, then UUID glob, then legacy path
+    path = None
+    if session_slug:
+        slug_path = Path(sessions_dir) / f"{session_slug}_studio.md"
+        if slug_path.exists():
+            path = slug_path
+    if path is None:
+        candidates = list(Path(sessions_dir).glob(f"*{session_id[:8]}*studio.md"))
+        if candidates:
+            path = candidates[0]
+    if path is None:
+        path = Path(sessions_dir) / f"brief_{session_id}.md"
     if not path.exists():
         return ""
     text = path.read_text(encoding="utf-8")
@@ -855,6 +1224,382 @@ def assemble_evaluation_payload(blackboard, baseline_response):
 
 
 # -- Session Persistence -------------------------------------------------------
+
+# -- v5.0 Domain Expert Activation --------------------------------------------
+
+def activate_domain_expert(initial_prompt, domain_inventory,
+                            session_id, sessions_dir=None):
+    """
+    Pre-discovery domain expert activation call.
+    Runs before Cell 4 (Discovery). Uses ANTHROPIC_DEFAULT (Haiku).
+
+    Reads the initial prompt and domain inventory, activates the model's
+    domain knowledge, and returns a structured brief covering:
+      - Precise domain portrait (what kind of engagement this actually is)
+      - What the PIL doesn't know they need (domain practitioner knowledge)
+      - Discovery priorities (what the Director must surface before briefing)
+
+    Output is written to blackboard["domain_context"] and appended to
+    brief_doc so all subsequent roles read it.
+
+    Epistemic flag protocol:
+    When domain knowledge has currency limits (local regulations, current
+    market conditions, specific pricing), the function flags these explicitly
+    with WHERE_TO_VERIFY guidance so the PIL can do targeted field research.
+    """
+
+    flagged = domain_inventory.get("flagged", [])
+    primary = domain_inventory.get("primary", "")
+    missing = domain_inventory.get("missing", [])
+
+    domain_summary = (
+        f"Primary domain: {primary}. "
+        f"Active dimensions: {', '.join(flagged) if flagged else 'general'}. "
+        f"Potentially missing: {', '.join(missing) if missing else 'none identified'}."
+    )
+
+    expert_prompt = f"""You are activating as a domain consultant before a creative studio engagement begins.
+
+INITIAL REQUEST FROM PIL:
+\"\"\"{initial_prompt}\"\"\"
+
+DOMAIN CLASSIFIER OUTPUT:
+{domain_summary}
+
+Your task is three parts. Be specific to this PIL's actual situation — not generic to the domain.
+
+---
+
+PART 1 — DOMAIN PORTRAIT (2-3 sentences)
+Name the precise domain this engagement lives in. Not just the broad category,
+but the specific type of problem: e.g. "farmers market food vendor launch in a
+dense urban market with high permit competition" not just "food business."
+What kind of engagement is this actually?
+
+---
+
+PART 2 — WHAT THE PIL LIKELY DOESN'T KNOW THEY NEED
+List 5-8 dimensions of this problem that a domain practitioner would immediately
+identify as essential — things a non-expert PIL would not know to raise.
+Be specific. For each item, note if it is:
+  [STANDARD] — well-established domain requirement, reliably known
+  [EPISTEMIC FLAG: verify at SOURCE TYPE] — currency-sensitive or locally variable;
+    include WHERE_TO_VERIFY so the PIL knows where to confirm current specifics.
+
+Format each item as:
+• [item name] [tag]: [one sentence description] [WHERE_TO_VERIFY if flagged]
+
+---
+
+PART 3 — DISCOVERY PRIORITIES
+List the 3-5 most important questions the Director must answer during discovery
+— questions the PIL may not know to address — before a creative brief can be
+written with domain completeness.
+These are gaps the Director should fill through conversation, not assumptions.
+
+Format: numbered list, one sentence per question.
+
+---
+
+Keep the entire response under 500 words. Be direct and specific."""
+
+    result = {
+        "domain_portrait": "",
+        "pil_knowledge_gaps": [],
+        "discovery_priorities": [],
+        "raw_response": "",
+        "model_used": ANTHROPIC_DEFAULT
+    }
+
+    try:
+        response = _anthropic_client.messages.create(
+            model=ANTHROPIC_DEFAULT,
+            max_tokens=700,
+            messages=[{"role": "user", "content": expert_prompt}]
+        )
+        raw = response.content[0].text.strip()
+        result["raw_response"] = raw
+
+        # Parse sections by header markers
+        sections = {
+            "domain_portrait": "",
+            "pil_knowledge_gaps": "",
+            "discovery_priorities": ""
+        }
+
+        current = None
+        lines = []
+        for line in raw.split("\n"):
+            if "PART 1" in line or "DOMAIN PORTRAIT" in line:
+                current = "domain_portrait"
+                lines = []
+            elif "PART 2" in line or "PIL LIKELY" in line or "DOESN\'T KNOW" in line:
+                if current:
+                    sections[current] = "\n".join(lines).strip()
+                current = "pil_knowledge_gaps"
+                lines = []
+            elif "PART 3" in line or "DISCOVERY PRIORITIES" in line:
+                if current:
+                    sections[current] = "\n".join(lines).strip()
+                current = "discovery_priorities"
+                lines = []
+            elif current:
+                lines.append(line)
+
+        if current and lines:
+            sections[current] = "\n".join(lines).strip()
+
+        result["domain_portrait"] = sections["domain_portrait"]
+        result["pil_knowledge_gaps"] = [
+            line.strip() for line in sections["pil_knowledge_gaps"].split("\n")
+            if line.strip().startswith("•")
+        ]
+        result["discovery_priorities"] = [
+            line.strip() for line in sections["discovery_priorities"].split("\n")
+            if line.strip() and line.strip()[0].isdigit()
+        ]
+
+    except Exception as e:
+        result["raw_response"] = f"Domain expert activation failed: {str(e)}"
+
+    return result
+
+
+def write_domain_context_to_brief(session_id, domain_context,
+                                   sessions_dir=None, session_slug=None):
+    """
+    Append the domain expert brief to brief_doc so all subsequent roles
+    read it as part of their context.
+    """
+    if not domain_context.get("raw_response", "").strip():
+        return
+
+    section = (
+        "\n\n---\n"
+        "## DOMAIN EXPERT BRIEF (pre-discovery)\n\n"
+        f"**Domain portrait:** {domain_context['domain_portrait']}\n\n"
+    )
+
+    if domain_context["pil_knowledge_gaps"]:
+        section += "**What the PIL likely doesn't know they need:**\n"
+        for gap in domain_context["pil_knowledge_gaps"]:
+            section += f"{gap}\n"
+        section += "\n"
+
+    if domain_context["discovery_priorities"]:
+        section += "**Discovery priorities for Director:**\n"
+        for p in domain_context["discovery_priorities"]:
+            section += f"{p}\n"
+
+    section += "---\n"
+
+    update_brief_doc(session_id, "DOMAIN_EXPERT", "DOMAIN_ACTIVATION", section,
+                     session_slug=session_slug)
+
+
+# ── v5.0 Phase 3 — Visualization Functions ────────────────────────────────────
+
+def generate_embedding(text, openai_client=None):
+    """
+    Generate a 1536-dimension embedding vector for a text string.
+    Uses OpenAI text-embedding-3-small — fast and cheap.
+    Returns None if the call fails rather than crashing the session.
+    """
+    if openai_client is None:
+        try:
+            openai_client = _openai_client
+        except Exception:
+            return None
+    try:
+        response = openai_client.embeddings.create(
+            model="text-embedding-3-small",
+            input=text[:8000]  # safety trim — model limit is 8191 tokens
+        )
+        return response.data[0].embedding
+    except Exception as e:
+        print(f"  ⚠ Embedding failed: {e}")
+        return None
+
+
+def compute_anchor(blackboard, openai_client=None):
+    """
+    Embed the user's initial prompt as the session anchor — the origin
+    of the visualization coordinate system.
+    Called once at session start (Cell 3) after blackboard creation.
+    All subsequent embeddings are measured relative to this anchor.
+    """
+    user_prompt = blackboard.get("user_prompt", "")
+    if not user_prompt:
+        return blackboard
+
+    vector = generate_embedding(user_prompt, openai_client)
+    if vector is not None:
+        blackboard["visualization_data"]["anchor_embedding"] = vector
+        blackboard["visualization_data"]["anchor_text"] = user_prompt
+        print(f"  ✓ Anchor embedding generated ({len(vector)} dims)")
+    else:
+        print("  ⚠ Anchor embedding failed — visualization data will be incomplete")
+    return blackboard
+
+
+def embed_turn(text, role, turn_index, blackboard, openai_client=None):
+    """
+    Embed a single conversation turn and store with metadata.
+    Computes cosine distance from the session anchor.
+    Called after each significant turn (PIL turns, Director turns, role outputs).
+
+    Distance from anchor = how far this turn is semantically from the
+    opening problem statement. High distance = exploratory territory.
+    Low distance = returning to or refining the original framing.
+    """
+    if not text or not text.strip():
+        return blackboard
+
+    vector = generate_embedding(text, openai_client)
+    if vector is None:
+        return blackboard
+
+    # Compute cosine distance from anchor
+    distance = None
+    anchor = blackboard["visualization_data"].get("anchor_embedding")
+    if anchor and _VIZ_DEPS:
+        import numpy as np
+        a = np.array(anchor)
+        b = np.array(vector)
+        cosine_sim = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+        distance = float(1.0 - cosine_sim)  # distance: 0=identical, 2=opposite
+
+    entry = {
+        "turn_index":           turn_index,
+        "role":                 role,
+        "text_preview":         text[:100],
+        "vector":               vector,
+        "distance_from_anchor": distance,
+    }
+    blackboard["visualization_data"]["turn_embeddings"].append(entry)
+    return blackboard
+
+
+def record_pil_turn(text, turn_index, blackboard,
+                    prev_pil_vocabulary=None, spontaneous=False):
+    """
+    Record a PIL turn with portrait metadata.
+    Extracts clarity signals: certainty language, vocabulary stability,
+    new concept introduction.
+
+    certainty_score: ratio of declarative to hedging language (higher = more certain)
+    new_vocab_count: number of significant new terms introduced in this turn
+    spontaneous: True if PIL volunteered information not directly asked for
+    """
+    import re as _re
+
+    HEDGING = {"think", "maybe", "perhaps", "wonder", "guess", "might", "could",
+               "possibly", "seems", "appears", "feel like", "not sure", "unclear"}
+    DECLARATIVE = {"is", "are", "the key", "clearly", "definitely", "this means",
+                   "i understand", "that's it", "exactly", "precisely", "the answer"}
+
+    words = set(_re.sub(r"[^a-zA-Z ]", "", text.lower()).split())
+    hedge_count = sum(1 for h in HEDGING if h in text.lower())
+    decl_count = sum(1 for d in DECLARATIVE if d in text.lower())
+    total = hedge_count + decl_count
+    certainty_score = decl_count / total if total > 0 else 0.5
+
+    # New vocabulary: significant words (>4 chars) not seen in previous PIL turns
+    if prev_pil_vocabulary is None:
+        prev_pil_vocabulary = set()
+    significant_words = {w for w in words if len(w) > 4}
+    new_vocab = significant_words - prev_pil_vocabulary
+    new_vocab_count = len(new_vocab)
+
+    turn_data = {
+        "turn_index":    turn_index,
+        "text":          text,
+        "spontaneous":   spontaneous,
+        "certainty_score": round(certainty_score, 3),
+        "new_vocab_count": new_vocab_count,
+        "new_vocab":     list(new_vocab)[:10]  # store top 10 for inspection
+    }
+
+    blackboard["visualization_data"]["pil_portrait"]["turns"].append(turn_data)
+    blackboard["visualization_data"]["pil_portrait"]["vocabulary_timeline"].append(
+        list(new_vocab)[:10]
+    )
+
+    # Clarity signal: low new vocab + high certainty = potential clarity moment
+    if new_vocab_count <= 2 and certainty_score > 0.6:
+        blackboard["visualization_data"]["clarity_signals"].append({
+            "turn_index":  turn_index,
+            "signal_type": "vocabulary_lock",
+            "magnitude":   round(certainty_score, 3)
+        })
+
+    return blackboard, significant_words | prev_pil_vocabulary
+
+
+def reduce_to_3d(blackboard):
+    """
+    Reduce all stored embeddings to 3D using PCA.
+    Called once at session end (Cell 12).
+    The anchor embedding becomes the coordinate origin —
+    all other points are expressed relative to it.
+
+    Stores reduced coordinates back into each turn_embedding entry
+    and into visualization_data["reduced_3d"] as a summary structure.
+    """
+    if not _VIZ_DEPS:
+        print("  ⚠ numpy/sklearn not available — skipping 3D reduction")
+        return blackboard
+
+    import numpy as np
+
+    turn_embeddings = blackboard["visualization_data"]["turn_embeddings"]
+    anchor = blackboard["visualization_data"]["anchor_embedding"]
+
+    if not turn_embeddings or anchor is None:
+        print("  ⚠ No embeddings to reduce")
+        return blackboard
+
+    # Build matrix: anchor first, then all turns
+    all_vectors = [anchor] + [e["vector"] for e in turn_embeddings
+                               if e.get("vector") is not None]
+
+    if len(all_vectors) < 3:
+        print("  ⚠ Too few embeddings for PCA reduction")
+        return blackboard
+
+    matrix = np.array(all_vectors)
+
+    # PCA to 3D
+    n_components = min(3, matrix.shape[0] - 1, matrix.shape[1])
+    pca = PCA(n_components=n_components)
+    reduced = pca.fit_transform(matrix)
+
+    # Translate so anchor is at origin
+    origin = reduced[0]
+    reduced_centered = reduced - origin
+
+    # Store coordinates back into turn entries
+    vec_idx = 1
+    for entry in turn_embeddings:
+        if entry.get("vector") is not None:
+            entry["position_3d"] = reduced_centered[vec_idx].tolist()
+            vec_idx += 1
+
+    # Store summary
+    blackboard["visualization_data"]["reduced_3d"] = {
+        "anchor_position":     [0.0, 0.0, 0.0],
+        "explained_variance":  pca.explained_variance_ratio_.tolist(),
+        "n_turns_reduced":     len(turn_embeddings),
+        "coordinate_system":   "PCA-centered on anchor (user prompt)"
+    }
+    blackboard["visualization_data"]["viz_ready"] = True
+
+    var_explained = sum(pca.explained_variance_ratio_) * 100
+    print(f"  ✓ 3D reduction complete: {len(turn_embeddings)} turns, "
+          f"{var_explained:.1f}% variance explained")
+    return blackboard
+
+
 
 def save_session(blackboard, sessions_dir=None):
     """Save the Blackboard to a timestamped JSON file."""

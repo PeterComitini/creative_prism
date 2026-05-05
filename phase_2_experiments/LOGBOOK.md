@@ -800,10 +800,77 @@ Key concept introduced: **Discernment at the production layer** — the system q
 ---
 
 
+### [2026-05-02] v5.0 First Test Run + Architectural Additions
+
+**Status:** Active build. Second test run pending.
+
+**Session prompt:** Chicken parm sandwich business (Petrina) — benchmark repeat.
+
+---
+
+**Root cause identified — discovery failure:**
+Director had no domain knowledge before asking first question. PIL asked
+"what should the booth look like?" at Stage 8 because visual identity was
+never surfaced in discovery. All prior v4.0 runs had the same structural gap.
+
+**Cell 3b — Domain Expert Activation (new):**
+Pre-discovery Researcher call added before Cell 4. One Haiku call. Reads
+initial prompt + domain inventory. Returns: domain portrait (precise problem
+type), what PIL doesn't know they need (5-8 practitioner items), discovery
+priorities for Director (3-5 questions that must be answered before briefing).
+Written to blackboard["domain_context"] and brief_doc. All subsequent roles
+read it. Epistemic flags include WHERE_TO_VERIFY — PIL pointed to specific
+sources rather than presented with false certainty.
+
+**Cell 12 — Prism document output (new):**
+Scribe call added to end of Cell 12. Produces structured markdown per
+prism_document_format_spec.md. RECOMMENDATION leads. Adaptive headers.
+Register calibrated from PIL reading. YAML front matter. PIL rating 1-5
+captured. Saved to sessions_hybrid/outputs/{session_slug}_brief.md.
+Non-blocking — session JSON saves regardless of document generation.
+
+**Direction title naming overhauled:**
+Creator Pass 1, Pass 2, and Presentation cells updated with manifesto-level
+title standard. Three named failure modes with examples. Test: one breath,
+one sentence, specific and ownable. Presentation cell rewrites analytical
+titles rather than accepting them from Creator.
+
+**Four bug fixes:**
+- Session slug stopword filter (60-word list, content words only)
+- Brand-genesis orientation bias: HUMAN_PERSONAL + BRANDING flagged
+  together nudges score +0.18 toward creative in Cell 2b after domain scan.
+  Prevents misclassification of identity-formation problems as strategic.
+- Direction diversity gate: Director review JSON requires diversity_check.
+  All-same-mechanism directions trigger ITERATE automatically.
+- Candidate set fallback: builds from ideation cycle raw output if
+  Director review JSON returns no candidates.
+
+**Deferred to v5.1:**
+- Gender-neutral language directive (all five role prompts)
+- DeepSeek V3.2 as evaluator swap (Option C: Gemini + DeepSeek,
+  both outside the Prism pipeline)
+
+---
 
 
 ## ARCHITECTURE DECISIONS — NEW ENTRIES (add to existing table)
-
+| Cell 3b Domain Expert Activation (v5.0) | Pre-discovery Researcher call — Director enters discovery domain-informed; root cause fix for discovery incompleteness |
+| Brand-genesis orientation bias (v5.0) | HUMAN_PERSONAL + BRANDING flagged → score nudged +0.18 toward creative; identity-formation problems were being misclassified as strategic |
+| Direction diversity gate (v5.0) | Director review requires diversity_check; all-same-mechanism directions trigger ITERATE automatically |
+| Prism document output in Cell 12 (v5.0) | Scribe produces structured markdown brief per format spec; PIL rating captured; YAML front matter; non-blocking |
+| Manifesto-level title standard (v5.0) | Creator and Presentation cells require ownable one-breath title; three named failure modes; Presentation rewrites if analytical |
+| WOW Standard in director.md (v5.0) | Positive quality definition — functional test replaces negative-only quality rules |
+| Persuasion principle in director.md + scribe.md (v5.0) | Conviction not sales; lead with conclusion; document is both report and persuasive artifact |
+| Single-format document system (v5.0) | Tier system eliminated; structure invariant, expression adaptive; Recommendation leads |
+| Nine domains + behavioral lens (v5.0) | Domain inventory feeds Critic context block; behavioral lens always active |
+| Blind Spots authored by Director only (v5.0) | Scribe reports what Director flagged in Stage 6 — no free inference |
+| google.genai migration in evaluator (v5.0) | google-generativeai EOL Nov 2025; Client() architecture |
+| Strategic MVP pivot — Clarity Prism (May 2026) | System stronger on language-output problems; ship strategic-first under clarityprism.ai; creativeprism.ai retained as brand and long-term vision; real-world feedback before scope expansion |
+| Visual prompt as first-class output (May 2026) | For visual sessions, Prism produces a brief + image prompt handed to human or visual AI tool; framed as feature not limitation; both Midjourney and GPT Image formats generated |
+| Director is_visual tag in brief JSON (May 2026) | Cell 16 brief JSON includes is_visual:true/false; definitive classification overrides Cell 7 keyword hint; Director has full discovery context, keyword scan does not |
+| VISUAL_PROMPT_MODE three-state operator control (May 2026) | "auto" = keyword hint + Director tag; "on" = force + mini-discovery; "off" = suppress; UX checkbox planned for finished product |
+| Mini-discovery only when mode="on" (May 2026) | Auto-detected sessions use synthesis context only; explicit mode fires 2-3 turn Director conversation: imaging system, encounter feeling, foreground emphasis |
+| 58-trait matrix — discernment added (v5.0) | Taste as quality requirement; WOW threshold operationalized |
 | Decision | Rationale |
 |---|---|
 | Two-call routing classifier (v4.0 fix) | Single combined call caused model to deprioritize PIL reading fields; split into orientation scoring + PIL reading calls |
@@ -825,6 +892,14 @@ Key concept introduced: **Discernment at the production layer** — the system q
 | Discernment at production layer (v5.0 concept) | System questions its own work before PIL sees anything; PIL questioning is a check, not the primary quality gate |
 
 ## KNOWN ISSUES — UPDATES
+*May 5, 2026 fixes:*
+- read_brief_doc missing session_slug (33 calls) — FIXED
+- update_brief_doc missing session_slug (26 calls) — FIXED
+- Missing commas before injected session_slug params (7 instances) — FIXED
+- SESSIONS_DIR not imported in notebook (Cell 3 import list, Cell 14) — FIXED
+- datetime import missing in Cell 14 (Recovery Cell) — FIXED
+
+
 
 | Issue | Severity | Status | Notes |
 |---|---|---|---|
@@ -859,7 +934,12 @@ Phase 2  Full Studio Workflow     Active — v4.0 Hybrid current
            Recommended next 8 runs before v5.0 build: C-33, C-34, C-36 (creative/GPT primary),
              C-17, C-24, C-27 (conventional spread), C-32 (benchmark), S-14 (PIL reading validation)
 
-Phase 2.5  v5.0 Design Sprint     COMPLETE — not yet built
+Phase 2.5  v5.0 Design Sprint     COMPLETE — v5.0 notebook active
+           Visual prompt system built (May 2026):
+             VISUAL_PROMPT_MODE, Director is_visual tag, Cell 51b mini-discovery
+             Midjourney + GPT Image prompt generation at Cell 51
+           Strategic pivot confirmed: Clarity Prism = strategic MVP
+             clarityprism.ai = front door; creativeprism.ai = full vision
            Layer 1: Commitment protocol deployed ✓
            Layer 2: Deterministic second loop, pre-brief interrogation, semantic drift — ready to build
            Layer 3: Full prompt rewrite, VS in discovery, persona library — after test data
